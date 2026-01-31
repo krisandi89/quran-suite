@@ -3,8 +3,9 @@
  * Slides in from right with full verse information
  */
 import { useEffect, useState } from 'react';
-import { X, Copy, Volume2, Check } from 'lucide-react';
+import { X, Copy, Volume2, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getVerseDetail } from '@/services';
+import { SURAH_INFO } from '@/data/surahData';
 import type { VerseDetail } from '@/types';
 
 interface VerseDrawerProps {
@@ -12,9 +13,10 @@ interface VerseDrawerProps {
     ayah: number;
     isOpen: boolean;
     onClose: () => void;
+    onNavigate: (surah: number, ayah: number) => void;
 }
 
-export function VerseDrawer({ surah, ayah, isOpen, onClose }: VerseDrawerProps) {
+export function VerseDrawer({ surah, ayah, isOpen, onClose, onNavigate }: VerseDrawerProps) {
     const [verse, setVerse] = useState<VerseDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -80,24 +82,60 @@ export function VerseDrawer({ surah, ayah, isOpen, onClose }: VerseDrawerProps) 
             >
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-surface-200">
-                    <div>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={handleClose}
+                            className="p-2 rounded-lg hover:bg-surface-200 text-gray-400 hover:text-white transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
                         {verse && (
-                            <>
+                            <div>
                                 <h2 className="text-lg font-semibold text-white">
                                     {verse.surahEnglishName}
                                 </h2>
                                 <p className="text-sm text-gray-400">
                                     Surah {verse.surah}, Ayah {verse.ayah}
                                 </p>
-                            </>
+                            </div>
                         )}
                     </div>
-                    <button
-                        onClick={handleClose}
-                        className="p-2 rounded-lg hover:bg-surface-200 text-gray-400 hover:text-white transition-colors"
-                    >
-                        <X size={20} />
-                    </button>
+
+                    {/* Navigation */}
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => {
+                                if (ayah > 1) {
+                                    onNavigate(surah, ayah - 1);
+                                } else if (surah > 1) {
+                                    const prevSurah = SURAH_INFO[surah - 2];
+                                    if (prevSurah) {
+                                        onNavigate(surah - 1, prevSurah.numberOfAyahs);
+                                    }
+                                }
+                            }}
+                            disabled={surah === 1 && ayah === 1}
+                            className="p-2 rounded-lg hover:bg-surface-200 text-gray-400 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                            title="Ayat Sebelumnya"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+                        <button
+                            onClick={() => {
+                                const currentSurah = SURAH_INFO[surah - 1];
+                                if (currentSurah && ayah < currentSurah.numberOfAyahs) {
+                                    onNavigate(surah, ayah + 1);
+                                } else if (surah < 114) {
+                                    onNavigate(surah + 1, 1);
+                                }
+                            }}
+                            disabled={surah === 114 && ayah === 6}
+                            className="p-2 rounded-lg hover:bg-surface-200 text-gray-400 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                            title="Ayat Selanjutnya"
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Content */}

@@ -100,6 +100,11 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
         setDetailView({ type: 'verse', surah: result.surah.number, ayah: result.ayah });
     };
 
+    // Handle verse navigation
+    const handleVerseNavigation = (surah: number, ayah: number) => {
+        setDetailView({ type: 'verse', surah, ayah });
+    };
+
     const handleTafsirClick = (result: TafsirSearchResult) => {
         setDetailView({ type: 'tafsir', surah: result.surah.number, ayah: result.ayah, source: result.source });
     };
@@ -354,6 +359,7 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                     ayah={detailView.ayah}
                     isOpen={true}
                     onClose={() => setDetailView(null)}
+                    onNavigate={handleVerseNavigation}
                 />
             )}
 
