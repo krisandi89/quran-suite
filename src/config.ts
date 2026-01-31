@@ -48,7 +48,7 @@ export const config = {
     // Search settings
     SEARCH: {
         DEBOUNCE_MS: 200,      // Debounce delay
-        MAX_RESULTS: 20,       // Max results per search
+        MAX_RESULTS: 50,       // Max results per search
     },
 
     // Hadith API (https://api.hadith.gading.dev)
