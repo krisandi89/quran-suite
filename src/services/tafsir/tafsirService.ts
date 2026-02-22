@@ -146,7 +146,7 @@ export class TafsirService implements ITafsirProvider {
                     sourceName = 'Tafsir al-Jalalayn';
             }
 
-            for (const [_key, entry] of dataMap) {
+            for (const [, entry] of dataMap) {
                 if (results.length >= maxResults) break;
 
                 if (entry.text.toLowerCase().includes(searchTerm)) {
@@ -181,9 +181,11 @@ export class TafsirService implements ITafsirProvider {
         surah: number,
         ayah: number,
         source: TafsirSource,
-        _signal?: AbortSignal
+        signal?: AbortSignal
     ): Promise<TafsirEntry | null> {
         await this.init();
+
+        if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
 
         const key = `${surah}:${ayah}`;
         let dataMap: Map<string, TafsirEntry>;

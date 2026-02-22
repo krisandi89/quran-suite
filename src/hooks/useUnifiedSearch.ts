@@ -152,9 +152,9 @@ export function useUnifiedSearch() {
         }));
     }, []);
 
+    const { query, mode, scope } = state;
     // Effect: Debounced search
     useEffect(() => {
-        const { query, mode, scope } = state;
 
         // Clear previous timer
         if (debounceTimerRef.current) {
@@ -208,7 +208,7 @@ export function useUnifiedSearch() {
                 clearTimeout(debounceTimerRef.current);
             }
         };
-    }, [state.query, state.mode, state.scope]);
+    }, [query, mode, scope]);
 
     return {
         query: state.query,

@@ -83,9 +83,9 @@ export function useSearch() {
         });
     }, [state.mode]);
 
+    const { query, mode } = state;
     // Effect: Debounced search
     useEffect(() => {
-        const { query, mode } = state;
 
         // Clear previous timer
         if (debounceTimerRef.current) {
@@ -139,7 +139,7 @@ export function useSearch() {
                 clearTimeout(debounceTimerRef.current);
             }
         };
-    }, [state.query, state.mode]);
+    }, [query, mode]);
 
     return {
         ...state,
