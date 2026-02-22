@@ -136,6 +136,25 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
         }
     }, [isOpen]);
 
+    // Listen for custom events from Browse Mode
+    useEffect(() => {
+        const handleOpenTafsir = (e: CustomEvent<{ surah: number, ayah: number }>) => {
+            setDetailView({ type: 'tafsir', surah: e.detail.surah, ayah: e.detail.ayah, source: 'kemenag' });
+        };
+        const handleSearchRelated = (e: CustomEvent<{ keyword: string }>) => {
+            setQuery(e.detail.keyword);
+            setScope('hadith');
+        };
+
+        window.addEventListener('open-tafsir-from-browse', handleOpenTafsir as EventListener);
+        window.addEventListener('search-related-from-browse', handleSearchRelated as EventListener);
+
+        return () => {
+            window.removeEventListener('open-tafsir-from-browse', handleOpenTafsir as EventListener);
+            window.removeEventListener('search-related-from-browse', handleSearchRelated as EventListener);
+        };
+    }, [setQuery, setScope]);
+
     if (!isOpen && !isClosing) return null;
 
     const flatResults = getFlatResults();
@@ -360,6 +379,14 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                     isOpen={true}
                     onClose={() => setDetailView(null)}
                     onNavigate={handleVerseNavigation}
+                    onOpenTafsir={(surah, ayah) => {
+                        setDetailView({ type: 'tafsir', surah, ayah, source: 'kemenag' });
+                    }}
+                    onSearchRelated={(keyword) => {
+                        setDetailView(null);
+                        setQuery(keyword);
+                        setScope('hadith');
+                    }}
                 />
             )}
 

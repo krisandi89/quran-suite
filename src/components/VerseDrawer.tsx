@@ -3,7 +3,7 @@
  * Slides in from right with full verse information
  */
 import { useEffect, useState } from 'react';
-import { X, Copy, Volume2, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Copy, Volume2, Check, ChevronLeft, ChevronRight, BookMarked, ScrollText } from 'lucide-react';
 import { getVerseDetail } from '@/services';
 import { SURAH_INFO } from '@/data/surahData';
 import type { VerseDetail } from '@/types';
@@ -14,9 +14,11 @@ interface VerseDrawerProps {
     isOpen: boolean;
     onClose: () => void;
     onNavigate: (surah: number, ayah: number) => void;
+    onOpenTafsir?: (surah: number, ayah: number) => void;
+    onSearchRelated?: (keyword: string) => void;
 }
 
-export function VerseDrawer({ surah, ayah, isOpen, onClose, onNavigate }: VerseDrawerProps) {
+export function VerseDrawer({ surah, ayah, isOpen, onClose, onNavigate, onOpenTafsir, onSearchRelated }: VerseDrawerProps) {
     const [verse, setVerse] = useState<VerseDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -193,32 +195,63 @@ export function VerseDrawer({ surah, ayah, isOpen, onClose, onNavigate }: VerseD
 
                 {/* Footer actions */}
                 {verse && (
-                    <div className="p-4 border-t border-surface-200 flex gap-3">
-                        <button
-                            onClick={handleCopy}
-                            className={`
-                flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg
-                font-medium transition-all
-                ${copied
-                                    ? 'bg-accent text-white'
-                                    : 'bg-surface-200 text-gray-300 hover:bg-surface-300'
-                                }
-              `}
-                        >
-                            {copied ? <Check size={18} /> : <Copy size={18} />}
-                            {copied ? 'Tersalin!' : 'Salin Ayat'}
-                        </button>
-
-                        {verse.audioUrl && (
+                    <div className="p-4 border-t border-surface-200">
+                        {/* Action buttons (Copy & Audio) */}
+                        <div className="flex gap-3 mb-3">
                             <button
-                                onClick={() => {
-                                    const audio = new Audio(verse.audioUrl);
-                                    audio.play();
-                                }}
-                                className="px-4 py-2.5 bg-surface-200 rounded-lg text-gray-300 hover:bg-surface-300 transition-colors"
+                                onClick={handleCopy}
+                                className={`
+                    flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg
+                    font-medium transition-all text-sm
+                    ${copied
+                                        ? 'bg-accent text-white'
+                                        : 'bg-surface-200 text-gray-300 hover:bg-surface-300'
+                                    }
+                  `}
                             >
-                                <Volume2 size={18} />
+                                {copied ? <Check size={16} /> : <Copy size={16} />}
+                                {copied ? 'Tersalin' : 'Salin'}
                             </button>
+
+                            {verse.audioUrl && (
+                                <button
+                                    onClick={() => {
+                                        const audio = new Audio(verse.audioUrl);
+                                        audio.play();
+                                    }}
+                                    className="px-4 py-2.5 bg-surface-200 rounded-lg text-gray-300 hover:bg-surface-300 transition-colors"
+                                >
+                                    <Volume2 size={16} />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Integration buttons (Tafsir & Hadis) */}
+                        {(onOpenTafsir || onSearchRelated) && (
+                            <div className="flex gap-3">
+                                {onOpenTafsir && (
+                                    <button
+                                        onClick={() => onOpenTafsir(surah, ayah)}
+                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/40 transition-all font-medium text-sm"
+                                    >
+                                        <BookMarked size={16} />
+                                        Baca Tafsir
+                                    </button>
+                                )}
+                                {onSearchRelated && (
+                                    <button
+                                        onClick={() => {
+                                            // Extract keywords or just pass "Surah X Ayat Y" to search
+                                            // Ideally, we search using the Indonesian translation
+                                            onSearchRelated(verse.indonesian.split(' ').slice(0, 5).join(' '));
+                                        }}
+                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/40 transition-all font-medium text-sm"
+                                    >
+                                        <ScrollText size={16} />
+                                        Hadis Terkait
+                                    </button>
+                                )}
+                            </div>
                         )}
                     </div>
                 )}

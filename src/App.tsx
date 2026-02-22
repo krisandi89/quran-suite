@@ -3,12 +3,14 @@
  * Main Application Component
  */
 import { useState, useEffect } from 'react';
-import { Search, Command, WifiOff, BookOpen } from 'lucide-react';
-import { Spotlight } from '@/components/Spotlight';
+import { Search, Command, WifiOff, BookOpen, LibraryBig } from 'lucide-react';
+import { Spotlight, BrowseModal, VerseDrawer } from '@/components';
 import { getProviderInfo } from '@/services';
 
 function App() {
     const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
+    const [isBrowseOpen, setIsBrowseOpen] = useState(false);
+    const [browseVerse, setBrowseVerse] = useState<{ surah: number; ayah: number } | null>(null);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
     const providerInfo = getProviderInfo();
 
@@ -64,27 +66,48 @@ function App() {
                     </p>
                 </div>
 
-                {/* Search Trigger Button */}
-                <button
-                    onClick={() => setIsSpotlightOpen(true)}
-                    className="
-            group flex items-center gap-3 px-6 py-4 
-            bg-surface-50 hover:bg-surface-100 
-            border border-surface-200 hover:border-accent/50
-            rounded-2xl shadow-xl shadow-black/20 
-            transition-all duration-300 hover:shadow-accent/10
-            w-full max-w-lg
-          "
-                >
-                    <Search className="text-gray-500 group-hover:text-accent transition-colors" size={20} />
-                    <span className="flex-1 text-left text-gray-500">
-                        Cari ayat Al-Quran...
-                    </span>
-                    <div className="flex items-center gap-1 text-xs text-gray-600 bg-surface-200 px-2 py-1 rounded-md">
-                        <Command size={12} />
-                        <span>K</span>
-                    </div>
-                </button>
+                {/* Main Action Buttons */}
+                <div className="w-full max-w-lg space-y-4">
+                    {/* Search Trigger Button */}
+                    <button
+                        onClick={() => setIsSpotlightOpen(true)}
+                        className="
+                group flex items-center gap-3 px-6 py-4 
+                bg-surface-50 hover:bg-surface-100 
+                border border-surface-200 hover:border-accent/50
+                rounded-2xl shadow-xl shadow-black/20 
+                transition-all duration-300 hover:shadow-accent/10
+                w-full
+              "
+                    >
+                        <Search className="text-gray-500 group-hover:text-accent transition-colors" size={20} />
+                        <span className="flex-1 text-left text-gray-500">
+                            Cari ayat Al-Quran...
+                        </span>
+                        <div className="flex items-center gap-1 text-xs text-gray-600 bg-surface-200 px-2 py-1 rounded-md">
+                            <Command size={12} />
+                            <span>K</span>
+                        </div>
+                    </button>
+
+                    {/* Browse Mode Button */}
+                    <button
+                        onClick={() => setIsBrowseOpen(true)}
+                        className="
+                group flex items-center gap-3 px-6 py-4 
+                bg-surface-50 hover:bg-surface-100 
+                border border-surface-200 hover:border-accent/50
+                rounded-2xl shadow-xl shadow-black/20 
+                transition-all duration-300 hover:shadow-accent/10
+                w-full
+              "
+                    >
+                        <LibraryBig className="text-gray-500 group-hover:text-accent transition-colors" size={20} />
+                        <span className="flex-1 text-left text-gray-400 group-hover:text-white transition-colors">
+                            Mulai Membaca (Mode Jelajah)
+                        </span>
+                    </button>
+                </div>
 
                 {/* Quick tips */}
                 <div className="mt-8 flex flex-wrap justify-center gap-4">
@@ -133,6 +156,43 @@ function App() {
                 isOpen={isSpotlightOpen}
                 onClose={() => setIsSpotlightOpen(false)}
             />
+
+            {/* Browse Modal */}
+            <BrowseModal
+                isOpen={isBrowseOpen}
+                onClose={() => setIsBrowseOpen(false)}
+                onSelectSurah={(surahNumber) => {
+                    setIsBrowseOpen(false);
+                    setBrowseVerse({ surah: surahNumber, ayah: 1 });
+                }}
+            />
+
+            {/* Global Verse Drawer (for Browse Mode) */}
+            {browseVerse && (
+                <VerseDrawer
+                    surah={browseVerse.surah}
+                    ayah={browseVerse.ayah}
+                    isOpen={true}
+                    onClose={() => setBrowseVerse(null)}
+                    onNavigate={(surah, ayah) => setBrowseVerse({ surah, ayah })}
+                    onOpenTafsir={(surah, ayah) => {
+                        // Close browse mode drawer and open spotlight in tafsir mode
+                        setBrowseVerse(null);
+                        setIsSpotlightOpen(true);
+                        // We would need to pass initial state to Spotlight to open Tafsir directly,
+                        // For a simple integration, we can dispatch a custom event or let Spotlight handle its own state.
+                        // Here, we dispatch a custom event that Spotlight can listen to if we want,
+                        // or for now, just let the user use Spotlight normally.
+                        // To make it seamless, let's communicate via a global event for this specific case (or just rely on Spotlight).
+                        window.dispatchEvent(new CustomEvent('open-tafsir-from-browse', { detail: { surah, ayah } }));
+                    }}
+                    onSearchRelated={(keyword) => {
+                        setBrowseVerse(null);
+                        setIsSpotlightOpen(true);
+                        window.dispatchEvent(new CustomEvent('search-related-from-browse', { detail: { keyword } }));
+                    }}
+                />
+            )}
 
             {/* Decorative elements */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
