@@ -180,7 +180,7 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                 >
                     {/* Search Input */}
                     <div className="flex items-center gap-3 px-4 py-3 border-b border-surface-200">
-                        <Search className="text-accent" size={20} />
+                        <Search className="text-accent shrink-0" size={20} />
                         <input
                             ref={inputRef}
                             type="text"
@@ -189,15 +189,23 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                             placeholder="Cari Al-Quran, Tafsir, atau Hadis..."
                             className="flex-1 bg-transparent text-white text-lg placeholder:text-gray-500 outline-none"
                         />
-                        {isLoading && <Loader2 className="text-accent animate-spin" size={20} />}
+                        {isLoading && <Loader2 className="text-accent animate-spin shrink-0" size={20} />}
                         {query && !isLoading && (
                             <button
                                 onClick={() => setQuery('')}
-                                className="p-1 rounded hover:bg-surface-200 text-gray-400"
+                                className="px-2 py-1 text-xs rounded bg-surface-200 hover:bg-surface-300 text-gray-400 hover:text-white transition-colors"
+                                title="Bersihkan teks"
                             >
-                                <X size={18} />
+                                Hapus
                             </button>
                         )}
+                        <button
+                            onClick={handleClose}
+                            className="p-1.5 rounded-lg hover:bg-surface-200 text-gray-400 hover:text-white transition-colors"
+                            title="Tutup (Esc)"
+                        >
+                            <X size={20} />
+                        </button>
                     </div>
 
                     {/* Scope Toggle */}

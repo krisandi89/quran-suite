@@ -191,6 +191,10 @@ function App() {
                         setIsSpotlightOpen(true);
                         window.dispatchEvent(new CustomEvent('search-related-from-browse', { detail: { keyword } }));
                     }}
+                    onBackToBrowse={() => {
+                        setBrowseVerse(null);
+                        setIsBrowseOpen(true);
+                    }}
                 />
             )}
 

@@ -84,18 +84,20 @@ export function HadithDrawer({ collection, number, isOpen, onClose }: HadithDraw
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
                 onClick={handleClose}
             />
 
-            {/* Drawer */}
-            <div
-                className={`
-                    fixed right-0 top-0 h-full w-full max-w-lg bg-surface-50 z-50
-                    shadow-2xl shadow-black/50 flex flex-col
-                    ${isClosing ? 'drawer-exit' : 'drawer-enter'}
-                `}
-            >
+            {/* Center Peek Modal */}
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+                <div
+                    className={`
+                        w-full max-w-3xl h-[85vh] bg-surface-50 rounded-2xl shadow-2xl shadow-black/50
+                        border border-surface-200 flex flex-col overflow-hidden
+                        ${isClosing ? 'spotlight-exit' : 'spotlight-enter'}
+                    `}
+                    onClick={(e) => e.stopPropagation()}
+                >
                 {/* Header */}
                 <div className={`bg-gradient-to-r ${colorClass} p-4`}>
                     <div className="flex items-center justify-between">
@@ -192,6 +194,7 @@ export function HadithDrawer({ collection, number, isOpen, onClose }: HadithDraw
                     </div>
                 )}
             </div>
-        </>
-    );
+        </div>
+    </>
+);
 }
