@@ -2,8 +2,8 @@
  * Verse Detail Drawer
  * Slides in from right with full verse information
  */
-import { useEffect, useState } from 'react';
-import { X, Copy, Volume2, Check, ChevronLeft, ChevronRight, BookMarked, ScrollText, ArrowLeft, BookOpen } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { X, Copy, Volume2, Check, ChevronLeft, ChevronRight, BookMarked, ScrollText, ArrowLeft, BookOpen, LibraryBig } from 'lucide-react';
 import { getVerseDetail } from '@/services';
 import { SURAH_INFO } from '@/data/surahData';
 import type { VerseDetail } from '@/types';
@@ -17,14 +17,57 @@ interface VerseDrawerProps {
     onOpenTafsir?: (surah: number, ayah: number) => void;
     onSearchRelated?: (keyword: string) => void;
     onBackToBrowse?: () => void;
+    onOpenFullSurah?: (surah: number) => void;
 }
 
-export function VerseDrawer({ surah, ayah, isOpen, onClose, onNavigate, onOpenTafsir, onSearchRelated, onBackToBrowse }: VerseDrawerProps) {
+export function VerseDrawer({ surah, ayah, isOpen, onClose, onNavigate, onOpenTafsir, onSearchRelated, onBackToBrowse, onOpenFullSurah }: VerseDrawerProps) {
     const [verse, setVerse] = useState<VerseDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
+
+    // Touch gesture ref for mobile swipe
+    const touchStartX = useRef<number | null>(null);
+    const touchStartY = useRef<number | null>(null);
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+        touchStartY.current = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (touchStartX.current === null || touchStartY.current === null) return;
+
+        const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+        const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+
+        touchStartX.current = null;
+        touchStartY.current = null;
+
+        // Check horizontal swipe threshold (minimum 40px swipe, maximum 60px vertical drift)
+        if (Math.abs(deltaX) > 40 && Math.abs(deltaY) < 60) {
+            if (deltaX < 0) {
+                // Swipe Left -> Next Ayah
+                const currentSurah = SURAH_INFO[surah - 1];
+                if (currentSurah && ayah < currentSurah.numberOfAyahs) {
+                    onNavigate(surah, ayah + 1);
+                } else if (surah < 114) {
+                    onNavigate(surah + 1, 1);
+                }
+            } else {
+                // Swipe Right -> Previous Ayah
+                if (ayah > 1) {
+                    onNavigate(surah, ayah - 1);
+                } else if (surah > 1) {
+                    const prevSurah = SURAH_INFO[surah - 2];
+                    if (prevSurah) {
+                        onNavigate(surah - 1, prevSurah.numberOfAyahs);
+                    }
+                }
+            }
+        }
+    };
 
     // Fetch verse detail
     useEffect(() => {
@@ -164,7 +207,11 @@ export function VerseDrawer({ surah, ayah, isOpen, onClose, onNavigate, onOpenTa
                     </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6">
+                <div
+                    className="flex-1 overflow-y-auto p-6 select-none sm:select-auto"
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                >
                     {isLoading && (
                         <div className="space-y-4">
                             <div className="skeleton h-24 rounded-lg" />
@@ -180,6 +227,11 @@ export function VerseDrawer({ surah, ayah, isOpen, onClose, onNavigate, onOpenTa
 
                     {verse && !isLoading && (
                         <div className="space-y-6">
+                            {/* Mobile Swipe hint */}
+                            <div className="text-center sm:hidden text-[10px] text-gray-500 bg-surface-100/50 py-1 rounded-full">
+                                👈 Usap (swipe) kiri / kanan untuk ganti ayat 👉
+                            </div>
+
                             {/* Arabic */}
                             <div className="p-4 bg-surface-100 rounded-xl">
                                 <p className="arabic-text text-2xl text-white leading-loose text-right">
@@ -219,6 +271,17 @@ export function VerseDrawer({ surah, ayah, isOpen, onClose, onNavigate, onOpenTa
                 {/* Footer actions */}
                 {verse && (
                     <div className="p-4 border-t border-surface-200">
+                        {/* Full Surah Button */}
+                        {onOpenFullSurah && (
+                            <button
+                                onClick={() => onOpenFullSurah(surah)}
+                                className="w-full flex items-center justify-center gap-2 py-2.5 mb-3 rounded-lg bg-accent/20 text-accent hover:bg-accent/30 border border-accent/30 font-medium text-sm transition-all"
+                            >
+                                <LibraryBig size={16} />
+                                Tampilkan Semua Ayat ({verse.surahEnglishName})
+                            </button>
+                        )}
+
                         {/* Action buttons (Copy & Audio) */}
                         <div className="flex gap-3 mb-3">
                             <button

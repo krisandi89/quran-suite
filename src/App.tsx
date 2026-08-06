@@ -4,13 +4,14 @@
  */
 import { useState, useEffect } from 'react';
 import { Search, Command, WifiOff, BookOpen, LibraryBig } from 'lucide-react';
-import { Spotlight, BrowseModal, VerseDrawer } from '@/components';
+import { Spotlight, BrowseModal, VerseDrawer, FullSurahModal } from '@/components';
 import { getProviderInfo } from '@/services';
 
 function App() {
     const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
     const [isBrowseOpen, setIsBrowseOpen] = useState(false);
     const [browseVerse, setBrowseVerse] = useState<{ surah: number; ayah: number } | null>(null);
+    const [fullSurahNumber, setFullSurahNumber] = useState<number | null>(null);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
     const providerInfo = getProviderInfo();
 
@@ -163,11 +164,27 @@ function App() {
                 onClose={() => setIsBrowseOpen(false)}
                 onSelectSurah={(surahNumber) => {
                     setIsBrowseOpen(false);
-                    setBrowseVerse({ surah: surahNumber, ayah: 1 });
+                    setFullSurahNumber(surahNumber);
                 }}
             />
 
-            {/* Global Verse Drawer (for Browse Mode) */}
+            {/* Full Surah Reader Modal */}
+            {fullSurahNumber !== null && (
+                <FullSurahModal
+                    surah={fullSurahNumber}
+                    isOpen={true}
+                    onClose={() => setFullSurahNumber(null)}
+                    onSelectAyah={(surah, ayah) => {
+                        setBrowseVerse({ surah, ayah });
+                    }}
+                    onBackToBrowse={() => {
+                        setFullSurahNumber(null);
+                        setIsBrowseOpen(true);
+                    }}
+                />
+            )}
+
+            {/* Global Verse Detail Modal (Center Peek) */}
             {browseVerse && (
                 <VerseDrawer
                     surah={browseVerse.surah}
@@ -176,14 +193,8 @@ function App() {
                     onClose={() => setBrowseVerse(null)}
                     onNavigate={(surah, ayah) => setBrowseVerse({ surah, ayah })}
                     onOpenTafsir={(surah, ayah) => {
-                        // Close browse mode drawer and open spotlight in tafsir mode
                         setBrowseVerse(null);
                         setIsSpotlightOpen(true);
-                        // We would need to pass initial state to Spotlight to open Tafsir directly,
-                        // For a simple integration, we can dispatch a custom event or let Spotlight handle its own state.
-                        // Here, we dispatch a custom event that Spotlight can listen to if we want,
-                        // or for now, just let the user use Spotlight normally.
-                        // To make it seamless, let's communicate via a global event for this specific case (or just rely on Spotlight).
                         window.dispatchEvent(new CustomEvent('open-tafsir-from-browse', { detail: { surah, ayah } }));
                     }}
                     onSearchRelated={(keyword) => {
@@ -193,7 +204,15 @@ function App() {
                     }}
                     onBackToBrowse={() => {
                         setBrowseVerse(null);
-                        setIsBrowseOpen(true);
+                        if (fullSurahNumber) {
+                            // If user was reading full surah, go back to full surah view
+                        } else {
+                            setIsBrowseOpen(true);
+                        }
+                    }}
+                    onOpenFullSurah={(surah) => {
+                        setBrowseVerse(null);
+                        setFullSurahNumber(surah);
                     }}
                 />
             )}

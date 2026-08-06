@@ -7,3 +7,4 @@ export { TafsirDrawer } from './TafsirDrawer';
 export { HadithDrawer } from './HadithDrawer';
 export { Spotlight } from './Spotlight';
 export { BrowseModal } from './BrowseModal';
+export { FullSurahModal } from './FullSurahModal';

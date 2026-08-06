@@ -226,6 +226,24 @@ export async function getVerseDetail(
 }
 
 /**
+ * Get full surah with all ayahs
+ */
+export async function getFullSurah(
+    surah: number,
+    signal?: AbortSignal
+) {
+    const provider = getVerseDetailProvider() as EQuranIdProvider;
+    if (provider && typeof provider.getFullSurah === 'function') {
+        return provider.getFullSurah(surah, signal);
+    }
+
+    const url = `${config.EQURAN.BASE_URL}/surat/${surah}`;
+    const response = await fetch(url, { signal });
+    const data = await response.json();
+    return data.data;
+}
+
+/**
  * Clear all caches
  */
 export function clearCaches(): void {

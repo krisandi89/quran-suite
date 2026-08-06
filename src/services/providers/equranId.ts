@@ -97,6 +97,39 @@ export class EQuranIdProvider implements IVerseDetailProvider, ISearchProvider {
     }
 
     /**
+     * Get full surah with all ayahs
+     */
+    async getFullSurah(surah: number, signal?: AbortSignal) {
+        try {
+            if (this.surahCache.has(surah)) {
+                return this.surahCache.get(surah)!;
+            }
+
+            const url = `${this.baseUrl}/surat/${surah}`;
+            const response = await fetch(url, { signal });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch surah: ${response.status}`);
+            }
+
+            const data: EQuranSurahResponse = await response.json();
+
+            if (data.code !== 200) {
+                throw new Error(data.message);
+            }
+
+            this.surahCache.set(surah, data.data);
+            return data.data;
+        } catch (error) {
+            if ((error as Error).name === 'AbortError') {
+                throw error;
+            }
+            console.error('[EQuranIdProvider] getFullSurah error:', error);
+            throw new Error('Failed to fetch full surah.');
+        }
+    }
+
+    /**
      * Search Quran using eQuran.id
      * Note: eQuran.id doesn't have a search API, so we fetch all surahs and search locally
      * This is used as a fallback or for offline mode
