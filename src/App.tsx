@@ -194,11 +194,13 @@ function App() {
                     onNavigate={(surah, ayah) => setBrowseVerse({ surah, ayah })}
                     onOpenTafsir={(surah, ayah) => {
                         setBrowseVerse(null);
+                        setFullSurahNumber(null);
                         setIsSpotlightOpen(true);
                         window.dispatchEvent(new CustomEvent('open-tafsir-from-browse', { detail: { surah, ayah } }));
                     }}
                     onSearchRelated={(keyword) => {
                         setBrowseVerse(null);
+                        setFullSurahNumber(null);
                         setIsSpotlightOpen(true);
                         window.dispatchEvent(new CustomEvent('search-related-from-browse', { detail: { keyword } }));
                     }}
