@@ -3,13 +3,14 @@
  * Main Application Component
  */
 import { useState, useEffect } from 'react';
-import { Search, Command, WifiOff, BookOpen, LibraryBig } from 'lucide-react';
-import { Spotlight, BrowseModal, VerseDrawer, FullSurahModal } from '@/components';
+import { Search, Command, WifiOff, BookOpen, LibraryBig, Sparkles } from 'lucide-react';
+import { Spotlight, BrowseModal, VerseDrawer, FullSurahModal, TasbihModal } from '@/components';
 import { getProviderInfo } from '@/services';
 
 function App() {
     const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
     const [isBrowseOpen, setIsBrowseOpen] = useState(false);
+    const [isTasbihOpen, setIsTasbihOpen] = useState(false);
     const [browseVerse, setBrowseVerse] = useState<{ surah: number; ayah: number } | null>(null);
     const [fullSurahNumber, setFullSurahNumber] = useState<number | null>(null);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -29,7 +30,7 @@ function App() {
         };
     }, []);
 
-    // Global keyboard shortcut for Cmd+K
+    // Global keyboard shortcut for Cmd+K and 't' for Tasbih when not typing
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -68,7 +69,7 @@ function App() {
                 </div>
 
                 {/* Main Action Buttons */}
-                <div className="w-full max-w-lg space-y-4">
+                <div className="w-full max-w-lg space-y-3 sm:space-y-4">
                     {/* Search Trigger Button */}
                     <button
                         onClick={() => setIsSpotlightOpen(true)}
@@ -91,23 +92,44 @@ function App() {
                         </div>
                     </button>
 
-                    {/* Browse Mode Button */}
-                    <button
-                        onClick={() => setIsBrowseOpen(true)}
-                        className="
-                group flex items-center gap-3 px-6 py-4 
-                bg-surface-50 hover:bg-surface-100 
-                border border-surface-200 hover:border-accent/50
-                rounded-2xl shadow-xl shadow-black/20 
-                transition-all duration-300 hover:shadow-accent/10
-                w-full
-              "
-                    >
-                        <LibraryBig className="text-gray-500 group-hover:text-accent transition-colors" size={20} />
-                        <span className="flex-1 text-left text-gray-400 group-hover:text-white transition-colors">
-                            Mulai Membaca (Mode Jelajah)
-                        </span>
-                    </button>
+                    {/* Mode Jelajah & Tasbih Digital Action Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        {/* Browse Mode Button */}
+                        <button
+                            onClick={() => setIsBrowseOpen(true)}
+                            className="
+                    group flex items-center gap-3 px-5 py-4 
+                    bg-surface-50 hover:bg-surface-100 
+                    border border-surface-200 hover:border-accent/50
+                    rounded-2xl shadow-xl shadow-black/20 
+                    transition-all duration-300 hover:shadow-accent/10
+                    w-full
+                  "
+                        >
+                            <LibraryBig className="text-gray-500 group-hover:text-accent transition-colors" size={20} />
+                            <span className="flex-1 text-left text-sm text-gray-400 group-hover:text-white transition-colors">
+                                Mode Jelajah
+                            </span>
+                        </button>
+
+                        {/* Tasbih Digital Button */}
+                        <button
+                            onClick={() => setIsTasbihOpen(true)}
+                            className="
+                    group flex items-center gap-3 px-5 py-4 
+                    bg-surface-50 hover:bg-surface-100 
+                    border border-surface-200 hover:border-gold/50
+                    rounded-2xl shadow-xl shadow-black/20 
+                    transition-all duration-300 hover:shadow-gold/10
+                    w-full
+                  "
+                        >
+                            <Sparkles className="text-gold group-hover:scale-110 transition-transform" size={20} />
+                            <span className="flex-1 text-left text-sm text-gray-400 group-hover:text-white transition-colors">
+                                Tasbih Digital
+                            </span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Quick tips */}
@@ -218,6 +240,12 @@ function App() {
                     }}
                 />
             )}
+
+            {/* Tasbih Digital Modal */}
+            <TasbihModal
+                isOpen={isTasbihOpen}
+                onClose={() => setIsTasbihOpen(false)}
+            />
 
             {/* Decorative elements */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">

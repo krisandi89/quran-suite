@@ -8,3 +8,4 @@ export { HadithDrawer } from './HadithDrawer';
 export { Spotlight } from './Spotlight';
 export { BrowseModal } from './BrowseModal';
 export { FullSurahModal } from './FullSurahModal';
+export { TasbihModal } from './TasbihModal';
