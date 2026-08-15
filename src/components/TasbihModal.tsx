@@ -63,6 +63,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
     const [resetProgress, setResetProgress] = useState(0);
     const resetHoldTimerRef = useRef<number | null>(null);
     const resetIntervalRef = useRef<number | null>(null);
+    const lastTapTimeRef = useRef<number>(0);
 
     // Unique gradient ID for SVG to prevent collisions
     const gradientId = useId();
@@ -102,23 +103,22 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, increment, decrement, handleClose, showCustomTargetModal, showResetConfirmModal]);
 
-    // Handle Massive Tap Area Click & Ripple Generation
-    const handleTapArea = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
-        // Prevent action if clicked on control buttons
-        if ((e.target as HTMLElement).closest('[data-prevent-tap="true"]')) {
+    // Handle Massive Tap Area Click & Ripple Generation (Unified PointerEvent)
+    const handleTapArea = (e: React.PointerEvent<HTMLDivElement>) => {
+        // Prevent action if clicked on control buttons or non-primary mouse button
+        if ((e.target as HTMLElement).closest('[data-prevent-tap="true"]') || (e.button !== 0 && e.pointerType === 'mouse')) {
             return;
         }
 
-        let clientX = 0;
-        let clientY = 0;
-
-        if ('touches' in e && e.touches.length > 0) {
-            clientX = e.touches[0].clientX;
-            clientY = e.touches[0].clientY;
-        } else if ('clientX' in e) {
-            clientX = e.clientX;
-            clientY = e.clientY;
+        // Prevent double trigger within 120ms (prevents touch + simulated mouse event duplicates)
+        const now = Date.now();
+        if (now - lastTapTimeRef.current < 120) {
+            return;
         }
+        lastTapTimeRef.current = now;
+
+        const clientX = e.clientX;
+        const clientY = e.clientY;
 
         const rect = e.currentTarget.getBoundingClientRect();
         const x = clientX - rect.left;
@@ -134,7 +134,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
 
         setRipples(prev => [...prev.slice(-4), newRipple]);
 
-        // Trigger increment
+        // Trigger increment exactly once
         increment();
 
         // Visual press bounce
@@ -301,10 +301,9 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                 <div
                     className="
                         relative flex-1 flex flex-col items-center justify-center
-                        cursor-pointer overflow-hidden my-auto w-full
+                        cursor-pointer overflow-hidden my-auto w-full touch-manipulation
                     "
-                    onMouseDown={handleTapArea}
-                    onTouchStart={handleTapArea}
+                    onPointerDown={handleTapArea}
                 >
                     {/* Ripple Elements */}
                     {ripples.map(ripple => (
@@ -499,11 +498,10 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                     {/* Hold-to-Reset Button with safety fill animation */}
                     <div className="relative">
                         <button
-                            onMouseDown={startResetHold}
-                            onMouseUp={cancelResetHold}
-                            onMouseLeave={cancelResetHold}
-                            onTouchStart={startResetHold}
-                            onTouchEnd={cancelResetHold}
+                            onPointerDown={startResetHold}
+                            onPointerUp={cancelResetHold}
+                            onPointerLeave={cancelResetHold}
+                            onPointerCancel={cancelResetHold}
                             onClick={() => {
                                 if (resetProgress < 100 && count > 0) {
                                     setShowResetConfirmModal(true);
