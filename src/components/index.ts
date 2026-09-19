@@ -9,3 +9,4 @@ export { Spotlight } from './Spotlight';
 export { BrowseModal } from './BrowseModal';
 export { FullSurahModal } from './FullSurahModal';
 export { TasbihModal } from './TasbihModal';
+export { MushafViewer } from './MushafViewer';

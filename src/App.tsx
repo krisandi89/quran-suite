@@ -3,14 +3,15 @@
  * Main Application Component
  */
 import { useState, useEffect } from 'react';
-import { Search, Command, WifiOff, BookOpen, LibraryBig, Sparkles } from 'lucide-react';
-import { Spotlight, BrowseModal, VerseDrawer, FullSurahModal, TasbihModal } from '@/components';
+import { Search, Command, WifiOff, BookOpen, LibraryBig, Sparkles, BookOpenText } from 'lucide-react';
+import { Spotlight, BrowseModal, VerseDrawer, FullSurahModal, TasbihModal, MushafViewer } from '@/components';
 import { getProviderInfo } from '@/services';
 
 function App() {
     const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
     const [isBrowseOpen, setIsBrowseOpen] = useState(false);
     const [isTasbihOpen, setIsTasbihOpen] = useState(false);
+    const [isMushafOpen, setIsMushafOpen] = useState(false);
     const [browseVerse, setBrowseVerse] = useState<{ surah: number; ayah: number } | null>(null);
     const [fullSurahNumber, setFullSurahNumber] = useState<number | null>(null);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -92,8 +93,8 @@ function App() {
                         </div>
                     </button>
 
-                    {/* Mode Jelajah & Tasbih Digital Action Row */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    {/* Mode Jelajah, Mushaf Madinah & Tasbih Digital Action Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         {/* Browse Mode Button */}
                         <button
                             onClick={() => setIsBrowseOpen(true)}
@@ -109,6 +110,24 @@ function App() {
                             <LibraryBig className="text-gray-500 group-hover:text-accent transition-colors" size={20} />
                             <span className="flex-1 text-left text-sm text-gray-400 group-hover:text-white transition-colors">
                                 Mode Jelajah
+                            </span>
+                        </button>
+
+                        {/* Mushaf Madinah Button */}
+                        <button
+                            onClick={() => setIsMushafOpen(true)}
+                            className="
+                    group flex items-center gap-3 px-5 py-4 
+                    bg-surface-50 hover:bg-surface-100 
+                    border border-surface-200 hover:border-emerald-400/50
+                    rounded-2xl shadow-xl shadow-black/20 
+                    transition-all duration-300 hover:shadow-emerald-400/10
+                    w-full
+                  "
+                        >
+                            <BookOpenText className="text-gray-500 group-hover:text-emerald-400 transition-colors" size={20} />
+                            <span className="flex-1 text-left text-sm text-gray-400 group-hover:text-white transition-colors">
+                                Mushaf Madinah
                             </span>
                         </button>
 
@@ -245,6 +264,16 @@ function App() {
             <TasbihModal
                 isOpen={isTasbihOpen}
                 onClose={() => setIsTasbihOpen(false)}
+            />
+
+            {/* Mushaf Madinah Viewer */}
+            <MushafViewer
+                isOpen={isMushafOpen}
+                onClose={() => setIsMushafOpen(false)}
+                onOpenSurah={(surahNumber) => {
+                    setIsMushafOpen(false);
+                    setFullSurahNumber(surahNumber);
+                }}
             />
 
             {/* Decorative elements */}

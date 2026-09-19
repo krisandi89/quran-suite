@@ -28,6 +28,25 @@
   line-height: 2.2;
 }
 
+/* Mushaf Viewer scrollbar (light theme) */
+.mushaf-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.mushaf-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mushaf-scrollbar::-webkit-scrollbar-thumb {
+  background: #C8BDA8;
+  border-radius: 3px;
+}
+
+.mushaf-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #A89880;
+}
+
 /* Spotlight modal animation */
 @keyframes spotlight-in {
   from {
