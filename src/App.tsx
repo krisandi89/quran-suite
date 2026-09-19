@@ -274,6 +274,10 @@ function App() {
                     setIsMushafOpen(false);
                     setFullSurahNumber(surahNumber);
                 }}
+                onSelectAyah={(surah, ayah) => {
+                    setIsMushafOpen(false);
+                    setBrowseVerse({ surah, ayah });
+                }}
             />
 
             {/* Decorative elements */}

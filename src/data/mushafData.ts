@@ -223,14 +223,39 @@ export function getJuzForPage(page: number): number {
     return juz;
 }
 
+/**
+ * Get hizb number for a given page (1-60).
+ * In Madani Mushaf, each Juz has 2 Hizb.
+ */
+export function getHizbForPage(page: number): number {
+    // 30 Juz = 60 Hizbs across 604 pages (~10.06 pages per hizb)
+    const juz = getJuzForPage(page);
+    const juzStart = JUZ_START_PAGE[juz];
+    const nextJuzStart = juz < 30 ? JUZ_START_PAGE[juz + 1] : 605;
+    const midPoint = juzStart + Math.floor((nextJuzStart - juzStart) / 2);
+    const baseHizb = (juz - 1) * 2 + 1;
+    return page >= midPoint ? baseHizb + 1 : baseHizb;
+}
+
 /** Total pages in Mushaf Madinah */
 export const TOTAL_MUSHAF_PAGES = 604;
 
-/** CDN base URL for mushaf page images */
+/** CDN base URL for Madani Mushaf 1441H ligature-based SVG files (Tarteel/QUL standard) */
+export const MUSHAF_SVG_BASE_URL = 'https://cdn.jsdelivr.net/gh/mushafdatabase/MushafDatabase-Ligature-Based-SVG@main/SVG%20V1.01';
+
+/**
+ * Get the SVG URL for a specific Madani Mushaf 1441H page
+ */
+export function getMushafPageSvgUrl(page: number): string {
+    const pad = String(page).padStart(3, '0');
+    return `${MUSHAF_SVG_BASE_URL}/${pad}.svg`;
+}
+
+/** Legacy PNG base URL (fallback) */
 export const MUSHAF_IMAGE_BASE_URL = 'https://surahquran.com/img/pages';
 
 /**
- * Get the image URL for a specific mushaf page
+ * Get the image URL for a specific mushaf page (fallback)
  */
 export function getMushafPageUrl(page: number): string {
     return `${MUSHAF_IMAGE_BASE_URL}/${page}.png`;
