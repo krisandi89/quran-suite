@@ -7,23 +7,23 @@ export default {
     theme: {
         extend: {
             colors: {
-                // Dark theme palette
+                // Light theme surface palette (ivory & crisp white)
                 surface: {
-                    DEFAULT: '#0f0f0f',
-                    50: '#1a1a1a',
-                    100: '#252525',
-                    200: '#2f2f2f',
-                    300: '#3a3a3a',
+                    DEFAULT: '#FFFFFF',
+                    50: '#FBF9F5',
+                    100: '#F3EFE6',
+                    200: '#E6DFD3',
+                    300: '#D5CCBD',
                 },
                 accent: {
-                    DEFAULT: '#10b981', // Emerald green for Islamic theme
-                    light: '#34d399',
-                    dark: '#059669',
+                    DEFAULT: '#059669', // Emerald green 600
+                    light: '#10b981',   // Emerald 500
+                    dark: '#047857',    // Emerald 700
                 },
                 gold: {
-                    DEFAULT: '#d4af37',
-                    light: '#e4c45c',
-                    dark: '#b4952f',
+                    DEFAULT: '#b48a28',
+                    light: '#d4af37',
+                    dark: '#926c1a',
                 }
             },
             fontFamily: {

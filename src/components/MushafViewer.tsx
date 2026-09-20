@@ -36,6 +36,8 @@ interface MushafViewerProps {
     onClose: () => void;
     onOpenSurah?: (surahNumber: number) => void;
     onSelectAyah?: (surah: number, ayah: number) => void;
+    initialPage?: number;
+    onPageChange?: (page: number) => void;
 }
 
 const BOOKMARK_KEY = 'mushaf-1441-bookmark-page';
@@ -75,9 +77,12 @@ function optimizeSvgViewBox(rawSvg: string, isFocusText: boolean): string {
     );
 }
 
-export function MushafViewer({ isOpen, onClose, onOpenSurah, onSelectAyah }: MushafViewerProps) {
+export function MushafViewer({ isOpen, onClose, onOpenSurah, onSelectAyah, initialPage, onPageChange }: MushafViewerProps) {
     // Core states
     const [currentPage, setCurrentPage] = useState<number>(() => {
+        if (initialPage && initialPage >= 1 && initialPage <= TOTAL_MUSHAF_PAGES) {
+            return initialPage;
+        }
         const saved = localStorage.getItem(BOOKMARK_KEY);
         if (saved) {
             const p = parseInt(saved, 10);
@@ -85,6 +90,18 @@ export function MushafViewer({ isOpen, onClose, onOpenSurah, onSelectAyah }: Mus
         }
         return 1;
     });
+
+    // Sync initialPage if it changes externally when opened
+    useEffect(() => {
+        if (isOpen && initialPage && initialPage >= 1 && initialPage <= TOTAL_MUSHAF_PAGES) {
+            setCurrentPage(initialPage);
+        }
+    }, [initialPage, isOpen]);
+
+    // Notify parent on page change
+    useEffect(() => {
+        onPageChange?.(currentPage);
+    }, [currentPage, onPageChange]);
 
     const [isClosing, setIsClosing] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);

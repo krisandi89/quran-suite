@@ -17,6 +17,7 @@ import type { SearchScope, SearchResult, TafsirSearchResult, HadithSearchResult,
 interface SpotlightProps {
     isOpen: boolean;
     onClose: () => void;
+    onBackToMushaf?: (surah?: number, ayah?: number) => void;
 }
 
 // Scope configuration
@@ -34,7 +35,7 @@ type DetailView =
     | { type: 'hadith'; collection: HadithCollection; number: number }
     | null;
 
-export function Spotlight({ isOpen, onClose }: SpotlightProps) {
+export function Spotlight({ isOpen, onClose, onBackToMushaf }: SpotlightProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const [isClosing, setIsClosing] = useState(false);
     const [detailView, setDetailView] = useState<DetailView>(null);
@@ -164,7 +165,7 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/70 backdrop-blur-custom z-50"
+                className="fixed inset-0 bg-black/50 backdrop-blur-custom z-50"
                 onClick={handleClose}
             />
 
@@ -172,28 +173,28 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
             <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] px-4">
                 <div
                     className={`
-                        w-full max-w-2xl bg-surface-50 rounded-2xl shadow-2xl shadow-black/50
-                        border border-surface-200 overflow-hidden
+                        w-full max-w-2xl bg-white rounded-2xl shadow-2xl
+                        border border-[#E6DFD3] overflow-hidden
                         ${isClosing ? 'spotlight-exit' : 'spotlight-enter'}
                     `}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Search Input */}
-                    <div className="flex items-center gap-3 px-4 py-3 border-b border-surface-200">
-                        <Search className="text-accent shrink-0" size={20} />
+                    <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#E6DFD3] bg-white">
+                        <Search className="text-emerald-600 shrink-0" size={20} />
                         <input
                             ref={inputRef}
                             type="text"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="Cari Al-Quran, Tafsir, atau Hadis..."
-                            className="flex-1 bg-transparent text-white text-lg placeholder:text-gray-500 outline-none"
+                            className="flex-1 bg-transparent text-gray-900 text-lg placeholder:text-gray-400 outline-none"
                         />
-                        {isLoading && <Loader2 className="text-accent animate-spin shrink-0" size={20} />}
+                        {isLoading && <Loader2 className="text-emerald-600 animate-spin shrink-0" size={20} />}
                         {query && !isLoading && (
                             <button
                                 onClick={() => setQuery('')}
-                                className="px-2 py-1 text-xs rounded bg-surface-200 hover:bg-surface-300 text-gray-400 hover:text-white transition-colors"
+                                className="px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-colors"
                                 title="Bersihkan teks"
                             >
                                 Hapus
@@ -201,7 +202,7 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                         )}
                         <button
                             onClick={handleClose}
-                            className="p-1.5 rounded-lg hover:bg-surface-200 text-gray-400 hover:text-white transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
                             title="Tutup (Esc)"
                         >
                             <X size={20} />
@@ -209,9 +210,9 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                     </div>
 
                     {/* Scope Toggle */}
-                    <div className="flex items-center gap-2 px-4 py-2 border-b border-surface-100 bg-surface overflow-x-auto">
+                    <div className="flex items-center gap-2 px-4 py-2 border-b border-[#E6DFD3] bg-[#FBF9F5] overflow-x-auto">
                         <span className="text-xs text-gray-500 shrink-0">Cakupan:</span>
-                        <div className="flex gap-1">
+                        <div className="flex gap-1.5">
                             {SCOPE_CONFIG.map(({ value, label, icon }) => (
                                 <button
                                     key={value}
@@ -219,8 +220,8 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                                     className={`
                                         flex items-center gap-1.5 px-3 py-1 text-xs rounded-full transition-all
                                         ${scope === value
-                                            ? 'bg-accent text-white'
-                                            : 'bg-surface-200 text-gray-400 hover:text-white'
+                                            ? 'bg-emerald-600 text-white font-medium shadow-xs'
+                                            : 'bg-gray-100 text-gray-600 hover:text-gray-900 hover:bg-gray-200'
                                         }
                                     `}
                                 >
@@ -232,20 +233,20 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                         <div className="flex-1" />
                         {/* Search mode indicator */}
                         <div className="flex items-center gap-1 shrink-0">
-                            <span className="px-2 py-1 text-xs rounded bg-surface-300 text-white">
+                            <span className="px-2 py-0.5 text-xs rounded bg-gray-100 border border-gray-200 text-gray-700 font-medium">
                                 ID
                             </span>
                         </div>
                     </div>
 
                     {/* Results */}
-                    <div className="max-h-[50vh] overflow-y-auto">
+                    <div className="max-h-[50vh] overflow-y-auto bg-white">
                         {/* Empty state */}
                         {!query && (
-                            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-                                <BookOpen size={40} className="mb-3 opacity-50" />
-                                <p className="text-sm">Ketik kata kunci untuk mencari</p>
-                                <p className="text-xs text-gray-600 mt-1">Quran • Tafsir • Hadis</p>
+                            <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                                <BookOpen size={40} className="mb-3 opacity-40 text-gray-500" />
+                                <p className="text-sm text-gray-600 font-medium">Ketik kata kunci untuk mencari</p>
+                                <p className="text-xs text-gray-400 mt-1">Quran • Tafsir • Hadis</p>
                             </div>
                         )}
 
@@ -277,7 +278,7 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                                 {results.quran.length > 0 && (scope === 'all' || scope === 'quran') && (
                                     <div>
                                         {scope === 'all' && (
-                                            <div className="px-4 py-2 bg-surface text-xs text-accent font-medium flex items-center gap-2 sticky top-0 z-10">
+                                            <div className="px-4 py-2 bg-[#F8F6F0] text-xs text-emerald-800 font-semibold flex items-center gap-2 sticky top-0 z-10 border-b border-[#E6DFD3]">
                                                 <BookOpen size={14} />
                                                 Al-Quran ({results.quran.length})
                                             </div>
@@ -305,7 +306,7 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                                 {results.tafsir.length > 0 && (scope === 'all' || scope === 'tafsir') && (
                                     <div>
                                         {scope === 'all' && (
-                                            <div className="px-4 py-2 bg-surface text-xs text-amber-400 font-medium flex items-center gap-2 sticky top-0 z-10">
+                                            <div className="px-4 py-2 bg-[#FDF9F0] text-xs text-amber-800 font-semibold flex items-center gap-2 sticky top-0 z-10 border-b border-[#E6DFD3]">
                                                 <BookMarked size={14} />
                                                 Tafsir ({results.tafsir.length})
                                             </div>
@@ -331,7 +332,7 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                                 {results.hadith.length > 0 && (scope === 'all' || scope === 'hadith') && (
                                     <div>
                                         {scope === 'all' && (
-                                            <div className="px-4 py-2 bg-surface text-xs text-emerald-400 font-medium flex items-center gap-2 sticky top-0 z-10">
+                                            <div className="px-4 py-2 bg-[#F0FDF4] text-xs text-emerald-800 font-semibold flex items-center gap-2 sticky top-0 z-10 border-b border-[#E6DFD3]">
                                                 <ScrollText size={14} />
                                                 Hadis ({results.hadith.length})
                                             </div>
@@ -357,21 +358,21 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
 
                         {/* No results */}
                         {query && !isLoading && totalCount === 0 && !error && (
-                            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-                                <Search size={40} className="mb-3 opacity-30" />
-                                <p className="text-sm">Tidak ada hasil untuk "{query}"</p>
-                                <p className="text-xs mt-1">Coba kata kunci lain atau ubah cakupan pencarian</p>
+                            <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                                <Search size={40} className="mb-3 opacity-30 text-gray-500" />
+                                <p className="text-sm text-gray-600 font-medium">Tidak ada hasil untuk "{query}"</p>
+                                <p className="text-xs text-gray-400 mt-1">Coba kata kunci lain atau ubah cakupan pencarian</p>
                             </div>
                         )}
                     </div>
 
                     {/* Footer */}
                     {totalCount > 0 && (
-                        <div className="px-4 py-2 border-t border-surface-200 bg-surface flex items-center justify-between">
-                            <p className="text-xs text-gray-500">
+                        <div className="px-4 py-2 border-t border-[#E6DFD3] bg-[#FBF9F5] flex items-center justify-between">
+                            <p className="text-xs text-gray-600 font-medium">
                                 {totalCount} hasil ditemukan
                             </p>
-                            <p className="text-xs text-gray-600">
+                            <p className="text-xs text-gray-500">
                                 ↑↓ navigasi • ⏎ buka
                             </p>
                         </div>
@@ -395,6 +396,13 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                         setQuery(keyword);
                         setScope('hadith');
                     }}
+                    onBackToMushaf={onBackToMushaf ? () => {
+                        const targetSurah = detailView.surah;
+                        const targetAyah = detailView.ayah;
+                        setDetailView(null);
+                        handleClose();
+                        onBackToMushaf(targetSurah, targetAyah);
+                    } : undefined}
                 />
             )}
 
@@ -405,6 +413,13 @@ export function Spotlight({ isOpen, onClose }: SpotlightProps) {
                     source={detailView.source}
                     isOpen={true}
                     onClose={() => setDetailView(null)}
+                    onBackToMushaf={onBackToMushaf ? () => {
+                        const targetSurah = detailView.surah;
+                        const targetAyah = detailView.ayah;
+                        setDetailView(null);
+                        handleClose();
+                        onBackToMushaf(targetSurah, targetAyah);
+                    } : undefined}
                 />
             )}
 

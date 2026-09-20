@@ -6,12 +6,17 @@ import { useState, useEffect } from 'react';
 import { Search, Command, WifiOff, BookOpen, LibraryBig, Sparkles, BookOpenText } from 'lucide-react';
 import { Spotlight, BrowseModal, VerseDrawer, FullSurahModal, TasbihModal, MushafViewer } from '@/components';
 import { getProviderInfo } from '@/services';
+import { SURAH_START_PAGE, getSurahsOnPage } from '@/data/mushafData';
 
 function App() {
     const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
     const [isBrowseOpen, setIsBrowseOpen] = useState(false);
     const [isTasbihOpen, setIsTasbihOpen] = useState(false);
     const [isMushafOpen, setIsMushafOpen] = useState(false);
+    const [mushafPage, setMushafPage] = useState<number>(() => {
+        const saved = localStorage.getItem('mushaf-1441-bookmark-page');
+        return saved ? parseInt(saved, 10) : 1;
+    });
     const [browseVerse, setBrowseVerse] = useState<{ surah: number; ayah: number } | null>(null);
     const [fullSurahNumber, setFullSurahNumber] = useState<number | null>(null);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -44,27 +49,46 @@ function App() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
+    // Handler to safely return to Mushaf Madinah from any view (Tafsir, Verse, Full Surah)
+    const handleBackToMushaf = (surah?: number, _ayah?: number, page?: number) => {
+        let targetPage = page || mushafPage;
+        if (!page && surah) {
+            // Check if current mushafPage already contains this surah
+            const surahsOnCurrentPage = getSurahsOnPage(mushafPage);
+            const hasSurah = surahsOnCurrentPage.some(s => s.surahNumber === surah);
+            if (!hasSurah && SURAH_START_PAGE[surah]) {
+                targetPage = SURAH_START_PAGE[surah];
+            }
+        }
+        setMushafPage(targetPage);
+        setBrowseVerse(null);
+        setFullSurahNumber(null);
+        setIsSpotlightOpen(false);
+        setIsBrowseOpen(false);
+        setIsMushafOpen(true);
+    };
+
     return (
-        <div className="min-h-screen bg-surface flex flex-col">
+        <div className="min-h-screen bg-[#F8F6F0] text-gray-900 flex flex-col">
             {/* Offline notice */}
             {!isOnline && (
-                <div className="bg-yellow-900/80 text-yellow-200 px-4 py-2 flex items-center justify-center gap-2 text-sm">
+                <div className="bg-amber-100 border-b border-amber-300 text-amber-900 px-4 py-2 flex items-center justify-center gap-2 text-sm font-medium">
                     <WifiOff size={16} />
                     <span>Anda sedang offline. Beberapa fitur mungkin tidak tersedia.</span>
                 </div>
             )}
 
             {/* Hero Section */}
-            <div className="flex-1 flex flex-col items-center justify-center px-4">
+            <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
                 {/* Logo/Title */}
-                <div className="text-center mb-12">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-accent to-accent-dark mb-6 shadow-lg shadow-accent/20">
+                <div className="text-center mb-10">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 mb-6 shadow-xl shadow-emerald-700/20">
                         <BookOpen size={40} className="text-white" />
                     </div>
-                    <h1 className="text-4xl font-bold text-white mb-3">
+                    <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-3 tracking-tight">
                         Al-Quran Suite
                     </h1>
-                    <p className="text-gray-400 max-w-md">
+                    <p className="text-gray-600 max-w-md text-sm sm:text-base leading-relaxed mx-auto">
                         Cari dan telusuri ayat Al-Quran, Tafsir, dan Hadis dengan terjemahan Bahasa Indonesia
                     </p>
                 </div>
@@ -75,19 +99,19 @@ function App() {
                     <button
                         onClick={() => setIsSpotlightOpen(true)}
                         className="
-                group flex items-center gap-3 px-6 py-4 
-                bg-surface-50 hover:bg-surface-100 
-                border border-surface-200 hover:border-accent/50
-                rounded-2xl shadow-xl shadow-black/20 
-                transition-all duration-300 hover:shadow-accent/10
+                group flex items-center gap-3.5 px-6 py-4 
+                bg-white hover:bg-emerald-50/30 
+                border border-[#E6DFD3] hover:border-emerald-500/60
+                rounded-2xl shadow-lg shadow-gray-200/50 
+                transition-all duration-200 hover:shadow-emerald-500/10
                 w-full
               "
                     >
-                        <Search className="text-gray-500 group-hover:text-accent transition-colors" size={20} />
-                        <span className="flex-1 text-left text-gray-500">
-                            Cari ayat Al-Quran...
+                        <Search className="text-gray-400 group-hover:text-emerald-600 transition-colors" size={20} />
+                        <span className="flex-1 text-left text-gray-400 text-base">
+                            Cari ayat Al-Quran, tafsir, hadis...
                         </span>
-                        <div className="flex items-center gap-1 text-xs text-gray-600 bg-surface-200 px-2 py-1 rounded-md">
+                        <div className="flex items-center gap-1 text-xs font-semibold text-gray-500 bg-gray-100 border border-gray-200 px-2 py-1 rounded-md">
                             <Command size={12} />
                             <span>K</span>
                         </div>
@@ -100,15 +124,15 @@ function App() {
                             onClick={() => setIsBrowseOpen(true)}
                             className="
                     group flex items-center gap-3 px-5 py-4 
-                    bg-surface-50 hover:bg-surface-100 
-                    border border-surface-200 hover:border-accent/50
-                    rounded-2xl shadow-xl shadow-black/20 
-                    transition-all duration-300 hover:shadow-accent/10
+                    bg-white hover:bg-emerald-50/40 
+                    border border-[#E6DFD3] hover:border-emerald-500/60
+                    rounded-2xl shadow-md shadow-gray-200/40 
+                    transition-all duration-200 hover:shadow-emerald-500/10
                     w-full
                   "
                         >
-                            <LibraryBig className="text-gray-500 group-hover:text-accent transition-colors" size={20} />
-                            <span className="flex-1 text-left text-sm text-gray-400 group-hover:text-white transition-colors">
+                            <LibraryBig className="text-gray-400 group-hover:text-emerald-600 transition-colors" size={20} />
+                            <span className="flex-1 text-left text-sm font-semibold text-gray-700 group-hover:text-emerald-800 transition-colors">
                                 Mode Jelajah
                             </span>
                         </button>
@@ -118,15 +142,15 @@ function App() {
                             onClick={() => setIsMushafOpen(true)}
                             className="
                     group flex items-center gap-3 px-5 py-4 
-                    bg-surface-50 hover:bg-surface-100 
-                    border border-surface-200 hover:border-emerald-400/50
-                    rounded-2xl shadow-xl shadow-black/20 
-                    transition-all duration-300 hover:shadow-emerald-400/10
+                    bg-white hover:bg-emerald-50/50 
+                    border border-[#E6DFD3] hover:border-emerald-600
+                    rounded-2xl shadow-md shadow-gray-200/40 
+                    transition-all duration-200 hover:shadow-emerald-600/15
                     w-full
                   "
                         >
-                            <BookOpenText className="text-gray-500 group-hover:text-emerald-400 transition-colors" size={20} />
-                            <span className="flex-1 text-left text-sm text-gray-400 group-hover:text-white transition-colors">
+                            <BookOpenText className="text-emerald-600 group-hover:scale-105 transition-transform" size={20} />
+                            <span className="flex-1 text-left text-sm font-bold text-emerald-800 group-hover:text-emerald-900 transition-colors">
                                 Mushaf Madinah
                             </span>
                         </button>
@@ -136,15 +160,15 @@ function App() {
                             onClick={() => setIsTasbihOpen(true)}
                             className="
                     group flex items-center gap-3 px-5 py-4 
-                    bg-surface-50 hover:bg-surface-100 
-                    border border-surface-200 hover:border-gold/50
-                    rounded-2xl shadow-xl shadow-black/20 
-                    transition-all duration-300 hover:shadow-gold/10
+                    bg-white hover:bg-amber-50/40 
+                    border border-[#E6DFD3] hover:border-amber-500/60
+                    rounded-2xl shadow-md shadow-gray-200/40 
+                    transition-all duration-200 hover:shadow-amber-500/10
                     w-full
                   "
                         >
-                            <Sparkles className="text-gold group-hover:scale-110 transition-transform" size={20} />
-                            <span className="flex-1 text-left text-sm text-gray-400 group-hover:text-white transition-colors">
+                            <Sparkles className="text-amber-600 group-hover:scale-110 transition-transform" size={20} />
+                            <span className="flex-1 text-left text-sm font-semibold text-gray-700 group-hover:text-amber-800 transition-colors">
                                 Tasbih Digital
                             </span>
                         </button>
@@ -152,42 +176,41 @@ function App() {
                 </div>
 
                 {/* Quick tips */}
-                <div className="mt-8 flex flex-wrap justify-center gap-4">
+                <div className="mt-8 flex flex-wrap justify-center gap-2.5 sm:gap-3">
                     {['sabar', 'taqwa', 'sholat', 'puasa', 'zakat'].map((keyword) => (
                         <button
                             key={keyword}
                             onClick={() => {
                                 setIsSpotlightOpen(true);
-                                // We'd need to pass the keyword to Spotlight here for auto-search
                             }}
                             className="
-                px-4 py-2 text-sm text-gray-500 
-                bg-surface-50 hover:bg-surface-100 
-                rounded-full border border-surface-200
-                transition-colors hover:text-accent hover:border-accent/30
+                px-4 py-1.5 text-xs sm:text-sm font-medium text-gray-600 
+                bg-white hover:bg-emerald-50 
+                rounded-full border border-[#E6DFD3]
+                transition-colors hover:text-emerald-800 hover:border-emerald-400 shadow-2xs
               "
                         >
-                            {keyword}
+                            #{keyword}
                         </button>
                     ))}
                 </div>
             </div>
 
             {/* Footer with Attribution */}
-            <footer className="py-6 text-center text-sm text-gray-600">
-                <p className="mb-2">
-                    Powered by {providerInfo.search} • {providerInfo.verse}
+            <footer className="py-6 text-center text-sm text-gray-600 border-t border-[#E6DFD3] bg-[#FBF9F5]">
+                <p className="mb-2 font-medium">
+                    Didukung oleh {providerInfo.search} • {providerInfo.verse}
                 </p>
-                <div className="text-xs text-gray-700 space-y-1">
+                <div className="text-xs text-gray-500 space-y-1">
                     <p>
-                        Tekan <kbd className="px-1.5 py-0.5 bg-surface-100 rounded text-gray-500">⌘K</kbd> atau <kbd className="px-1.5 py-0.5 bg-surface-100 rounded text-gray-500">Ctrl+K</kbd> kapan saja untuk mencari
+                        Tekan <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-gray-600 font-medium">⌘K</kbd> atau <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-gray-600 font-medium">Ctrl+K</kbd> kapan saja untuk mencari
                     </p>
                     <p className="text-gray-500 mt-2">
-                        Data: <a href="https://quran.kemenag.go.id" className="hover:text-accent">Kemenag RI</a> •
-                        <a href="https://tanzil.net" className="hover:text-accent ml-1">Tanzil.net</a> •
-                        <a href="https://api.hadith.gading.dev" className="hover:text-accent ml-1">Hadith API</a>
+                        Data: <a href="https://quran.kemenag.go.id" target="_blank" rel="noreferrer" className="text-emerald-700 hover:underline">Kemenag RI</a> •
+                        <a href="https://tanzil.net" target="_blank" rel="noreferrer" className="text-emerald-700 hover:underline ml-1">Tanzil.net</a> •
+                        <a href="https://api.hadith.gading.dev" target="_blank" rel="noreferrer" className="text-emerald-700 hover:underline ml-1">Hadith API</a>
                     </p>
-                    <p className="text-gray-600 text-[10px]">
+                    <p className="text-gray-400 text-[10px]">
                         Tafsir Ibn Katsir (CC BY-NC-SA) • Tafsir Jalalayn (CC BY-NC-ND) • Hadith API (MIT)
                     </p>
                 </div>
@@ -197,6 +220,7 @@ function App() {
             <Spotlight
                 isOpen={isSpotlightOpen}
                 onClose={() => setIsSpotlightOpen(false)}
+                onBackToMushaf={(surah, ayah) => handleBackToMushaf(surah, ayah)}
             />
 
             {/* Browse Modal */}
@@ -222,6 +246,7 @@ function App() {
                         setFullSurahNumber(null);
                         setIsBrowseOpen(true);
                     }}
+                    onBackToMushaf={(surah) => handleBackToMushaf(surah)}
                 />
             )}
 
@@ -257,6 +282,7 @@ function App() {
                         setBrowseVerse(null);
                         setFullSurahNumber(surah);
                     }}
+                    onBackToMushaf={() => handleBackToMushaf(browseVerse.surah, browseVerse.ayah)}
                 />
             )}
 
@@ -269,6 +295,8 @@ function App() {
             {/* Mushaf Madinah Viewer */}
             <MushafViewer
                 isOpen={isMushafOpen}
+                initialPage={mushafPage}
+                onPageChange={setMushafPage}
                 onClose={() => setIsMushafOpen(false)}
                 onOpenSurah={(surahNumber) => {
                     setIsMushafOpen(false);
@@ -282,9 +310,8 @@ function App() {
 
             {/* Decorative elements */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-                {/* Gradient orbs */}
-                <div className="absolute top-1/4 -left-32 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-                <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
+                <div className="absolute top-1/4 -left-32 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl" />
+                <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
             </div>
         </div>
     );

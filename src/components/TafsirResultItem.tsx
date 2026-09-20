@@ -28,26 +28,26 @@ export function TafsirResultItem({
     return (
         <div
             className={`
-                px-4 py-3 cursor-pointer transition-colors border-b border-surface-100
-                ${isSelected ? 'bg-accent/10' : 'hover:bg-surface-100'}
+                px-4 py-3 cursor-pointer transition-colors border-b border-gray-100
+                ${isSelected ? 'bg-amber-50/80 border-l-2 border-l-amber-500' : 'hover:bg-gray-50'}
             `}
             onClick={onSelect}
         >
             {/* Header */}
             <div className="flex items-center gap-2 mb-2">
-                <div className="p-1.5 rounded bg-amber-500/20">
-                    <BookMarked size={14} className="text-amber-400" />
+                <div className="p-1.5 rounded bg-amber-100">
+                    <BookMarked size={14} className="text-amber-700" />
                 </div>
-                <span className="text-sm font-medium text-white">
+                <span className="text-sm font-semibold text-gray-900">
                     {result.surah?.englishName || 'Unknown'} {result.surah?.number || ''}:{result.ayah || ''}
                 </span>
-                <span className="px-2 py-0.5 text-xs rounded-full bg-amber-500/20 text-amber-400">
+                <span className="px-2 py-0.5 text-xs rounded-full bg-amber-100 text-amber-800 font-medium">
                     {result.sourceName || 'Tafsir'}
                 </span>
             </div>
 
             {/* Tafsir text */}
-            <p className="text-sm text-gray-400 leading-relaxed">
+            <p className="text-sm text-gray-600 leading-relaxed">
                 <HighlightText text={displayText} highlight={query} />
             </p>
         </div>

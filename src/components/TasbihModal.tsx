@@ -206,7 +206,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
         <div className="fixed inset-0 z-50 flex items-center justify-center select-none overflow-hidden">
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/85 backdrop-blur-md transition-opacity duration-300"
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
                 onClick={handleClose}
             />
 
@@ -214,7 +214,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
             <div
                 className={`
                     relative w-full h-full md:max-w-lg md:h-[92vh] md:max-h-[850px] md:rounded-3xl
-                    bg-surface-50 border-0 md:border md:border-surface-200 shadow-2xl shadow-black/80
+                    bg-white border-0 md:border md:border-[#E6DFD3] shadow-2xl
                     flex flex-col justify-between overflow-hidden touch-no-delay
                     pt-safe pb-safe pl-safe pr-safe
                     ${isClosing ? 'spotlight-exit' : 'spotlight-enter'}
@@ -230,13 +230,13 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                     <button
                         onClick={() => setShowPresetsMenu(prev => !prev)}
                         className="
-                            flex items-center gap-2 px-3 py-1.5 rounded-full
-                            bg-surface-100/90 hover:bg-surface-200/90 text-gray-200
-                            border border-surface-200/60 text-xs font-medium
-                            transition-all active:scale-95 shadow-sm
+                            flex items-center gap-2 px-3.5 py-1.5 rounded-full
+                            bg-gray-100 hover:bg-gray-200 text-gray-800
+                            border border-gray-200 text-xs font-semibold
+                            transition-all active:scale-95 shadow-xs
                         "
                     >
-                        <Sparkles size={14} className="text-accent" />
+                        <Sparkles size={14} className="text-emerald-600" />
                         <span className="truncate max-w-[140px] sm:max-w-[180px]">
                             {currentDhikr.transliteration}
                         </span>
@@ -250,7 +250,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                             onClick={() => setSoundEnabled(prev => !prev)}
                             className={`
                                 p-2 rounded-full transition-colors active:scale-90
-                                ${soundEnabled ? 'text-accent bg-surface-100 hover:bg-surface-200' : 'text-gray-500 hover:text-gray-300 bg-transparent'}
+                                ${soundEnabled ? 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100' : 'text-gray-400 hover:text-gray-600 bg-transparent'}
                             `}
                             title={soundEnabled ? 'Suara Aktif' : 'Suara Mati'}
                         >
@@ -262,7 +262,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                             onClick={() => setHapticEnabled(prev => !prev)}
                             className={`
                                 p-2 rounded-full transition-colors active:scale-90
-                                ${hapticEnabled ? 'text-accent bg-surface-100 hover:bg-surface-200' : 'text-gray-500 hover:text-gray-300 bg-transparent'}
+                                ${hapticEnabled ? 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100' : 'text-gray-400 hover:text-gray-600 bg-transparent'}
                             `}
                             title={hapticEnabled ? 'Getaran Aktif' : 'Getaran Mati'}
                         >
@@ -272,7 +272,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                         {/* Close Modal */}
                         <button
                             onClick={handleClose}
-                            className="p-2 ml-1 text-gray-400 hover:text-white rounded-full hover:bg-surface-100 transition-colors active:scale-90"
+                            className="p-2 ml-1 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100 transition-colors active:scale-90"
                             title="Tutup Tasbih"
                         >
                             <X size={20} />
@@ -286,10 +286,10 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                     className="px-6 py-2 text-center z-10 cursor-pointer"
                     onClick={() => setShowPresetsMenu(true)}
                 >
-                    <div className="text-2xl sm:text-3xl text-gold font-arabic mb-1 tracking-wide leading-relaxed filter drop-shadow-sm">
+                    <div className="text-2xl sm:text-3xl text-amber-700 font-arabic mb-1 tracking-wide leading-relaxed filter drop-shadow-sm">
                         {currentDhikr.arabic}
                     </div>
-                    <div className="text-sm text-gray-300 font-medium">
+                    <div className="text-sm text-gray-900 font-bold">
                         {currentDhikr.transliteration}
                     </div>
                     <div className="text-xs text-gray-500 italic line-clamp-1 max-w-xs mx-auto mt-0.5">
@@ -317,8 +317,8 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                                 height: ripple.size,
                             }}
                             className="
-                                absolute rounded-full bg-accent/25 pointer-events-none
-                                animate-tasbih-ripple border border-accent/40
+                                absolute rounded-full bg-emerald-500/20 pointer-events-none
+                                animate-tasbih-ripple border border-emerald-500/30
                             "
                         />
                     ))}
@@ -329,7 +329,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                         <div
                             className={`
                                 absolute w-64 h-64 sm:w-72 sm:h-72 rounded-full
-                                bg-gradient-to-tr from-accent/15 via-gold/10 to-transparent
+                                bg-gradient-to-tr from-emerald-500/10 via-amber-500/10 to-transparent
                                 blur-2xl pointer-events-none transition-all duration-300
                                 ${isPressed ? 'scale-110 opacity-80' : 'scale-100 opacity-40'}
                             `}
@@ -342,8 +342,8 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                         >
                             <defs>
                                 <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor="#10b981" />
-                                    <stop offset="100%" stopColor="#d4af37" />
+                                    <stop offset="0%" stopColor="#059669" />
+                                    <stop offset="100%" stopColor="#d97706" />
                                 </linearGradient>
                             </defs>
 
@@ -353,7 +353,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                                 cy="140"
                                 r={radius}
                                 fill="transparent"
-                                stroke="#1f2937"
+                                stroke="#E6DFD3"
                                 strokeWidth={strokeWidth}
                                 strokeDasharray={target ? undefined : '6 8'}
                                 className={!target ? 'animate-spin-slow' : ''}
@@ -379,9 +379,9 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                                     cy="140"
                                     r={radius}
                                     fill="transparent"
-                                    stroke="#10b981"
+                                    stroke="#059669"
                                     strokeWidth={strokeWidth - 4}
-                                    strokeOpacity="0.4"
+                                    strokeOpacity="0.5"
                                     className="animate-gentle-pulse"
                                 />
                             )}
@@ -396,9 +396,9 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                             `}
                         >
                             {/* Target & Lap Tag */}
-                            <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-1 font-medium tracking-wide">
+                            <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1 font-medium tracking-wide">
                                 {totalLaps > 0 && (
-                                    <span className="flex items-center gap-1 text-gold bg-gold/10 px-2 py-0.5 rounded-md border border-gold/20">
+                                    <span className="flex items-center gap-1 text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 font-semibold">
                                         <Layers size={11} />
                                         Putaran {totalLaps}
                                     </span>
@@ -409,19 +409,19 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                             </div>
 
                             {/* Main Big Number Counter */}
-                            <div className="text-6xl sm:text-7xl font-bold tracking-tight text-white font-sans drop-shadow-md">
+                            <div className="text-6xl sm:text-7xl font-bold tracking-tight text-gray-900 font-sans drop-shadow-sm">
                                 {count}
                             </div>
 
                             {/* Tap Instruction Prompt */}
-                            <div className="text-xs text-accent-light/80 mt-2 font-medium tracking-wider uppercase animate-pulse">
+                            <div className="text-xs text-emerald-700 mt-2 font-semibold tracking-wider uppercase animate-pulse">
                                 Ketuk Layar
                             </div>
                         </div>
                     </div>
 
                     {/* Subtle reminder */}
-                    <div className="text-[11px] text-gray-500 tracking-wide mt-2 text-center pointer-events-none">
+                    <div className="text-[11px] text-gray-400 tracking-wide mt-2 text-center pointer-events-none">
                         Ketuk di mana saja di area ini
                     </div>
                 </div>
@@ -431,10 +431,10 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                     data-prevent-tap="true"
                     className="px-5 py-2 z-10"
                 >
-                    <div className="text-[11px] font-medium text-gray-400 mb-2 flex items-center justify-between">
+                    <div className="text-[11px] font-medium text-gray-500 mb-2 flex items-center justify-between">
                         <span>Pilih Target Hitungan:</span>
                         {target && (
-                            <span className="text-accent">
+                            <span className="text-emerald-700 font-semibold">
                                 {Math.round(progressPercent)}% Tercapai
                             </span>
                         )}
@@ -448,8 +448,8 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                                 className={`
                                     py-2 px-1 rounded-xl text-xs font-semibold border transition-all active:scale-95
                                     ${target === presetValue
-                                        ? 'bg-accent text-white border-accent shadow-lg shadow-accent/25'
-                                        : 'bg-surface-100 text-gray-300 border-surface-200 hover:border-accent/40 hover:bg-surface-200'
+                                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-md font-bold'
+                                        : 'bg-[#FAF8F5] text-gray-700 border-[#E6DFD3] hover:border-emerald-500/50 hover:bg-white'
                                     }
                                 `}
                             >
@@ -466,8 +466,8 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                             className={`
                                 py-2 px-1 rounded-xl text-xs font-semibold border transition-all active:scale-95 flex items-center justify-center gap-1
                                 ${target && ![33, 100, 1000].includes(target)
-                                    ? 'bg-gold text-surface-50 border-gold shadow-lg shadow-gold/25 font-bold'
-                                    : 'bg-surface-100 text-gray-300 border-surface-200 hover:border-gold/40 hover:bg-surface-200'
+                                    ? 'bg-amber-600 text-white border-amber-600 shadow-md font-bold'
+                                    : 'bg-[#FAF8F5] text-gray-700 border-[#E6DFD3] hover:border-amber-500/50 hover:bg-white'
                                 }
                             `}
                         >
@@ -480,8 +480,8 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                             className={`
                                 py-2 px-1 rounded-xl text-xs font-semibold border transition-all active:scale-95 flex items-center justify-center
                                 ${target === null
-                                    ? 'bg-surface-200 text-white border-gray-500 shadow-md'
-                                    : 'bg-surface-100 text-gray-400 border-surface-200 hover:border-gray-500 hover:bg-surface-200'
+                                    ? 'bg-gray-800 text-white border-gray-800 shadow-md font-bold'
+                                    : 'bg-[#FAF8F5] text-gray-500 border-[#E6DFD3] hover:border-gray-400 hover:bg-white'
                                 }
                             `}
                         >
@@ -493,7 +493,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                 {/* 5. BOTTOM ACTION TOOLBAR (Protected Reset & Decrement) */}
                 <div
                     data-prevent-tap="true"
-                    className="flex items-center justify-between px-6 py-4 border-t border-surface-200/60 bg-surface-100/40 z-10"
+                    className="flex items-center justify-between px-6 py-4 border-t border-[#E6DFD3] bg-[#FBF9F5] z-10"
                 >
                     {/* Hold-to-Reset Button with safety fill animation */}
                     <div className="relative">
@@ -509,8 +509,8 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                             }}
                             className="
                                 relative group overflow-hidden flex items-center gap-2 px-4 py-2.5 rounded-xl
-                                bg-surface-200 text-gray-300 hover:text-white border border-surface-300
-                                text-xs font-medium transition-all active:scale-95 shadow-sm
+                                bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200
+                                text-xs font-medium transition-all active:scale-95 shadow-xs
                             "
                         >
                             {/* Filling Progress Indicator Bar */}
@@ -518,7 +518,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                                 style={{ width: `${resetProgress}%` }}
                                 className="absolute left-0 top-0 bottom-0 bg-red-600/60 transition-all duration-75 pointer-events-none"
                             />
-                            <RotateCcw size={15} className={`text-red-400 transition-transform ${resetProgress > 0 ? 'rotate-180' : ''}`} />
+                            <RotateCcw size={15} className={`text-red-500 transition-transform ${resetProgress > 0 ? 'rotate-180' : ''}`} />
                             <span className="relative z-10">
                                 {resetProgress > 0 ? 'Tahan...' : 'Reset'}
                             </span>
@@ -526,7 +526,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                     </div>
 
                     {/* Quick Tip / Hint */}
-                    <div className="text-[11px] text-gray-500 hidden sm:block">
+                    <div className="text-[11px] text-gray-400 hidden sm:block">
                         Tahan 1 detik untuk reset
                     </div>
 
@@ -538,8 +538,8 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                             flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-medium
                             border transition-all active:scale-95
                             ${count > 0
-                                ? 'bg-surface-200 hover:bg-surface-300 text-gray-200 border-surface-300'
-                                : 'bg-surface-100 text-gray-600 border-surface-200/50 cursor-not-allowed opacity-50'
+                                ? 'bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-200 shadow-xs'
+                                : 'bg-gray-50 text-gray-400 border-gray-200/50 cursor-not-allowed opacity-50'
                             }
                         `}
                         title="Kurangi 1 (Undo)"
@@ -555,21 +555,21 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                ========================================================= */}
             {showPresetsMenu && (
                 <div
-                    className="fixed inset-0 z-60 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm"
+                    className="fixed inset-0 z-60 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm"
                     onClick={() => setShowPresetsMenu(false)}
                 >
                     <div
-                        className="w-full sm:max-w-md bg-surface-50 border border-surface-200 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl spotlight-enter max-h-[80vh] flex flex-col"
+                        className="w-full sm:max-w-md bg-white border border-[#E6DFD3] rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl spotlight-enter max-h-[80vh] flex flex-col"
                         onClick={e => e.stopPropagation()}
                     >
-                        <div className="flex items-center justify-between pb-3 border-b border-surface-200">
-                            <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                                <Sparkles size={18} className="text-gold" />
+                        <div className="flex items-center justify-between pb-3 border-b border-[#E6DFD3]">
+                            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                                <Sparkles size={18} className="text-amber-600" />
                                 Pilihan Bacaan Dzikir
                             </h3>
                             <button
                                 onClick={() => setShowPresetsMenu(false)}
-                                className="p-1.5 text-gray-400 hover:text-white rounded-full"
+                                className="p-1.5 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100"
                             >
                                 <X size={18} />
                             </button>
@@ -588,24 +588,24 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                                         className={`
                                             w-full text-left p-3.5 rounded-2xl border transition-all flex items-center justify-between
                                             ${isSelected
-                                                ? 'bg-accent/15 border-accent text-white shadow-sm'
-                                                : 'bg-surface-100 hover:bg-surface-200 border-surface-200 text-gray-300'
+                                                ? 'bg-emerald-50 border-emerald-500 text-gray-900 shadow-xs'
+                                                : 'bg-[#FAF8F5] hover:bg-white border-[#E6DFD3] text-gray-700'
                                             }
                                         `}
                                     >
                                         <div className="flex-1 pr-3">
-                                            <div className="text-right text-lg text-gold font-arabic mb-1">
+                                            <div className="text-right text-lg text-amber-700 font-arabic mb-1">
                                                 {preset.arabic}
                                             </div>
-                                            <div className="font-semibold text-sm text-gray-100">
+                                            <div className="font-bold text-sm text-gray-900">
                                                 {preset.transliteration}
                                             </div>
-                                            <div className="text-xs text-gray-400 mt-0.5 line-clamp-1">
+                                            <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">
                                                 {preset.translation}
                                             </div>
                                         </div>
                                         {isSelected && (
-                                            <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center flex-shrink-0">
+                                            <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
                                                 <Check size={14} />
                                             </div>
                                         )}
@@ -622,18 +622,18 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                ========================================================= */}
             {showCustomTargetModal && (
                 <div
-                    className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                    className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
                     onClick={() => setShowCustomTargetModal(false)}
                 >
                     <div
-                        className="w-full max-w-xs bg-surface-50 border border-surface-200 rounded-2xl p-5 shadow-2xl spotlight-enter"
+                        className="w-full max-w-xs bg-white border border-[#E6DFD3] rounded-2xl p-5 shadow-2xl spotlight-enter"
                         onClick={e => e.stopPropagation()}
                     >
-                        <h3 className="text-base font-semibold text-white mb-2 flex items-center gap-2">
-                            <Settings size={18} className="text-gold" />
+                        <h3 className="text-base font-bold text-gray-900 mb-2 flex items-center gap-2">
+                            <Settings size={18} className="text-amber-600" />
                             Target Kustom
                         </h3>
-                        <p className="text-xs text-gray-400 mb-4">
+                        <p className="text-xs text-gray-500 mb-4">
                             Masukkan jumlah target hitungan dzikir yang Anda inginkan:
                         </p>
 
@@ -647,8 +647,8 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                                 placeholder="Contoh: 40, 70, 500"
                                 autoFocus
                                 className="
-                                    w-full px-4 py-2.5 rounded-xl bg-surface-100 border border-surface-200
-                                    text-white text-lg font-bold placeholder-gray-500 focus:outline-none focus:border-accent
+                                    w-full px-4 py-2.5 rounded-xl bg-[#FAF8F5] border border-[#E6DFD3]
+                                    text-gray-900 text-lg font-bold placeholder-gray-400 focus:outline-none focus:border-emerald-600
                                     text-center mb-4
                                 "
                             />
@@ -656,14 +656,14 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                                 <button
                                     type="button"
                                     onClick={() => setShowCustomTargetModal(false)}
-                                    className="flex-1 py-2 rounded-xl bg-surface-100 hover:bg-surface-200 text-gray-400 text-xs font-medium"
+                                    className="flex-1 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-medium"
                                 >
                                     Batal
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={!customTargetInput || parseInt(customTargetInput, 10) <= 0}
-                                    className="flex-1 py-2 rounded-xl bg-accent hover:bg-accent-dark text-white text-xs font-semibold disabled:opacity-50"
+                                    className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold disabled:opacity-50"
                                 >
                                     Terapkan
                                 </button>
@@ -678,20 +678,20 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                ========================================================= */}
             {showResetConfirmModal && (
                 <div
-                    className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                    className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
                     onClick={() => setShowResetConfirmModal(false)}
                 >
                     <div
-                        className="w-full max-w-xs bg-surface-50 border border-surface-200 rounded-2xl p-5 shadow-2xl spotlight-enter text-center"
+                        className="w-full max-w-xs bg-white border border-[#E6DFD3] rounded-2xl p-5 shadow-2xl spotlight-enter text-center"
                         onClick={e => e.stopPropagation()}
                     >
-                        <div className="w-12 h-12 rounded-full bg-red-500/10 text-red-400 mx-auto flex items-center justify-center mb-3">
+                        <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 mx-auto flex items-center justify-center mb-3">
                             <RotateCcw size={24} />
                         </div>
-                        <h3 className="text-base font-semibold text-white mb-1">
+                        <h3 className="text-base font-bold text-gray-900 mb-1">
                             Reset Hitungan?
                         </h3>
-                        <p className="text-xs text-gray-400 mb-4">
+                        <p className="text-xs text-gray-500 mb-4">
                             Hitungan saat ini ({count}) akan dikembalikan ke angka 0.
                         </p>
 
@@ -701,7 +701,7 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                                     reset(false);
                                     setShowResetConfirmModal(false);
                                 }}
-                                className="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow-md active:scale-95"
+                                className="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow-xs active:scale-95"
                             >
                                 Ya, Reset Hitungan
                             </button>
@@ -710,13 +710,13 @@ export function TasbihModal({ isOpen, onClose }: TasbihModalProps) {
                                     reset(true);
                                     setShowResetConfirmModal(false);
                                 }}
-                                className="w-full py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-gray-300 text-xs font-medium"
+                                className="w-full py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium"
                             >
                                 Reset Hitungan & Putaran
                             </button>
                             <button
                                 onClick={() => setShowResetConfirmModal(false)}
-                                className="w-full py-2 text-gray-400 hover:text-white text-xs"
+                                className="w-full py-2 text-gray-400 hover:text-gray-700 text-xs"
                             >
                                 Batal
                             </button>

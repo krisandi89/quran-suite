@@ -32,10 +32,10 @@ export function ResultItem({
             onClick={onSelect}
             className={`
         group relative px-4 py-3 cursor-pointer transition-all duration-150
-        border-b border-surface-100/50
+        border-b border-gray-100
         ${isSelected
-                    ? 'bg-gradient-to-r from-accent/10 to-transparent border-l-2 border-l-accent'
-                    : 'hover:bg-surface-50/50'
+                    ? 'bg-emerald-50/70 border-l-2 border-l-accent'
+                    : 'hover:bg-gray-50'
                 }
       `}
         >
@@ -55,7 +55,7 @@ export function ResultItem({
                     onClick={handleCopy}
                     className="
             opacity-0 group-hover:opacity-100 transition-opacity
-            p-1.5 rounded-md hover:bg-surface-200 text-gray-400 hover:text-accent
+            p-1.5 rounded-md hover:bg-gray-200/60 text-gray-400 hover:text-accent
           "
                     title="Copy verse"
                 >
@@ -64,7 +64,7 @@ export function ResultItem({
             </div>
 
             {/* Arabic text */}
-            <div className="arabic-text text-xl text-white/90 mb-2 leading-loose">
+            <div className="arabic-text text-xl text-gray-900 mb-2 leading-loose">
                 {mode === 'arabic' ? (
                     <HighlightText text={result.text.arabic} highlight={query} />
                 ) : (
@@ -73,7 +73,7 @@ export function ResultItem({
             </div>
 
             {/* Indonesian translation */}
-            <div className="text-sm text-gray-400 leading-relaxed">
+            <div className="text-sm text-gray-600 leading-relaxed">
                 {mode === 'indonesian' ? (
                     <HighlightText text={result.text.indonesian} highlight={query} />
                 ) : (
