@@ -3,7 +3,7 @@
  * Slides in from right with full hadith information
  */
 import { useEffect, useState } from 'react';
-import { X, Copy, Check, ScrollText } from 'lucide-react';
+import { X, Copy, Check, ScrollText, BookOpenText } from 'lucide-react';
 import { getHadith } from '@/services';
 import type { HadithEntry, HadithCollection } from '@/types';
 
@@ -12,6 +12,7 @@ interface HadithDrawerProps {
     number: number;
     isOpen: boolean;
     onClose: () => void;
+    onBackToMushaf?: () => void;
 }
 
 // Collection display names
@@ -30,7 +31,7 @@ const COLLECTION_COLORS: Record<HadithCollection, string> = {
     tirmidzi: 'from-rose-500 to-rose-600',
 };
 
-export function HadithDrawer({ collection, number, isOpen, onClose }: HadithDrawerProps) {
+export function HadithDrawer({ collection, number, isOpen, onClose, onBackToMushaf }: HadithDrawerProps) {
     const [hadith, setHadith] = useState<HadithEntry | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -114,13 +115,28 @@ export function HadithDrawer({ collection, number, isOpen, onClose }: HadithDraw
                                 </p>
                             </div>
                         </div>
-                        <button
-                            onClick={handleClose}
-                            className="p-2 rounded-lg hover:bg-white/20 text-white transition-colors"
-                            title="Tutup"
-                        >
-                            <X size={20} />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            {onBackToMushaf && (
+                                <button
+                                    onClick={() => {
+                                        handleClose();
+                                        onBackToMushaf();
+                                    }}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors text-xs sm:text-sm font-semibold shadow-xs"
+                                    title="Kembali ke Mushaf Madinah"
+                                >
+                                    <BookOpenText size={17} />
+                                    <span>Kembali ke Mushaf</span>
+                                </button>
+                            )}
+                            <button
+                                onClick={handleClose}
+                                className="p-2 rounded-lg hover:bg-white/20 text-white transition-colors"
+                                title="Tutup"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -178,10 +194,22 @@ export function HadithDrawer({ collection, number, isOpen, onClose }: HadithDraw
                 {/* Footer actions */}
                 {hadith && (
                     <div className="p-4 border-t border-[#E6DFD3] bg-[#FBF9F5] flex gap-3">
+                        {onBackToMushaf && (
+                            <button
+                                onClick={() => {
+                                    handleClose();
+                                    onBackToMushaf();
+                                }}
+                                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition-all shadow-sm active:scale-[0.99]"
+                            >
+                                <BookOpenText size={18} />
+                                <span>Kembali ke Mushaf</span>
+                            </button>
+                        )}
                         <button
                             onClick={handleCopy}
                             className={`
-                                flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
+                                ${onBackToMushaf ? 'px-5' : 'flex-1'} flex items-center justify-center gap-2 py-2.5 rounded-xl
                                 font-medium transition-all text-sm
                                 ${copied
                                     ? 'bg-emerald-600 text-white shadow-xs'

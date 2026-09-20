@@ -137,9 +137,14 @@ export function MushafViewer({ isOpen, onClose, onOpenSurah, onSelectAyah, initi
     const [loadingPages, setLoadingPages] = useState<{ [page: number]: boolean }>({});
     const [errorPages, setErrorPages] = useState<{ [page: number]: boolean }>({});
 
-    // Touch swipe handling
-    const touchStartX = useRef<number | null>(null);
-    const touchStartY = useRef<number | null>(null);
+    // Gesture & swipe state (supports Touch, Pointer Drag, and Trackpad Wheel)
+    const [dragOffset, setDragOffset] = useState<number>(0);
+    const [isDragging, setIsDragging] = useState<boolean>(false);
+    const isPointerDownRef = useRef<boolean>(false);
+    const pointerStartX = useRef<number>(0);
+    const pointerStartY = useRef<number>(0);
+    const hasDraggedRef = useRef<boolean>(false);
+    const wheelCooldownRef = useRef<number>(0);
 
     // Check bookmark on mount & page change
     useEffect(() => {
@@ -282,28 +287,106 @@ export function MushafViewer({ isOpen, onClose, onOpenSurah, onSelectAyah, initi
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, goToNextPage, goToPrevPage]);
 
-    // Touch swipe handlers
-    const handleTouchStart = (e: React.TouchEvent) => {
-        touchStartX.current = e.touches[0].clientX;
-        touchStartY.current = e.touches[0].clientY;
+    // Pointer event handlers (unifies mouse drag, trackpad, and touch gestures)
+    const handlePointerDown = (e: React.PointerEvent) => {
+        // Only allow primary pointer (left mouse click or single finger touch)
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+        // Don't drag if clicking buttons, inputs, links, or dropdown selector
+        const target = e.target as HTMLElement;
+        if (
+            target.closest('button') ||
+            target.closest('input') ||
+            target.closest('a') ||
+            target.closest('.mushaf-nav-dropdown') ||
+            target.closest('.mushaf-action-banner')
+        ) {
+            return;
+        }
+
+        isPointerDownRef.current = true;
+        pointerStartX.current = e.clientX;
+        pointerStartY.current = e.clientY;
+        hasDraggedRef.current = false;
     };
 
-    const handleTouchEnd = (e: React.TouchEvent) => {
-        if (touchStartX.current === null || touchStartY.current === null) return;
-        const deltaX = e.changedTouches[0].clientX - touchStartX.current;
-        const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    const handlePointerMove = (e: React.PointerEvent) => {
+        if (!isPointerDownRef.current) return;
+        const deltaX = e.clientX - pointerStartX.current;
+        const deltaY = e.clientY - pointerStartY.current;
 
-        // Ensure swipe was horizontal
-        if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
-            // RTL swipe: swipe left = next page, swipe right = previous page
-            if (deltaX < 0) {
+        // Check if movement is primarily horizontal
+        if (!hasDraggedRef.current) {
+            if (Math.abs(deltaX) > 7 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                hasDraggedRef.current = true;
+                setIsDragging(true);
+            }
+        }
+
+        if (hasDraggedRef.current) {
+            // Add resistance at bounds (first page or last page)
+            let resistance = 0.65;
+            if ((currentPage <= 1 && deltaX > 0) || (currentPage >= TOTAL_MUSHAF_PAGES && deltaX < 0)) {
+                resistance = 0.2;
+            }
+            setDragOffset(deltaX * resistance);
+        }
+    };
+
+    const handlePointerUp = (e: React.PointerEvent) => {
+        if (!isPointerDownRef.current) return;
+        isPointerDownRef.current = false;
+        setIsDragging(false);
+
+        const deltaX = e.clientX - pointerStartX.current;
+        const wasDragged = hasDraggedRef.current;
+
+        if (wasDragged && Math.abs(deltaX) > 40) {
+            // RTL Mushaf pagination convention:
+            // Swipe left (deltaX < 0) -> Next Page (Page + 1)
+            // Swipe right (deltaX > 0) -> Previous Page (Page - 1)
+            if (deltaX < -40 && currentPage < TOTAL_MUSHAF_PAGES) {
                 goToNextPage();
-            } else {
+            } else if (deltaX > 40 && currentPage > 1) {
                 goToPrevPage();
             }
         }
-        touchStartX.current = null;
-        touchStartY.current = null;
+
+        setDragOffset(0);
+
+        if (wasDragged) {
+            // Suppress accidental ayah click right after dragging
+            setTimeout(() => {
+                hasDraggedRef.current = false;
+            }, 80);
+        }
+    };
+
+    const handlePointerCancel = () => {
+        isPointerDownRef.current = false;
+        setIsDragging(false);
+        setDragOffset(0);
+        setTimeout(() => {
+            hasDraggedRef.current = false;
+        }, 80);
+    };
+
+    // Trackpad horizontal wheel swipe handler (Mac 2-finger horizontal swipe)
+    const handleWheel = (e: React.WheelEvent) => {
+        if (zoomLevel > 1.05) return; // When zoomed in, let browser pan natively
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 20) {
+            const now = Date.now();
+            if (now - wheelCooldownRef.current < 350) return;
+            wheelCooldownRef.current = now;
+
+            if (e.deltaX > 20) {
+                // Two fingers swipe left -> Next Page
+                if (currentPage < TOTAL_MUSHAF_PAGES) goToNextPage();
+            } else if (e.deltaX < -20) {
+                // Two fingers swipe right -> Prev Page
+                if (currentPage > 1) goToPrevPage();
+            }
+        }
     };
 
     // Bookmark handler
@@ -329,6 +412,11 @@ export function MushafViewer({ isOpen, onClose, onOpenSurah, onSelectAyah, initi
 
     // Click on SVG elements: intercept clicks on words & ayahs
     const handleSvgContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        // If user was dragging / swiping, ignore click
+        if (hasDraggedRef.current) {
+            return;
+        }
+
         const target = e.target as Element;
         // Search upward for word or ayah group with data-surah and data-aya
         const wordGroup = target.closest('[data-surah][data-aya]');
@@ -484,8 +572,6 @@ export function MushafViewer({ isOpen, onClose, onOpenSurah, onSelectAyah, initi
             {/* Fullscreen Modal Backdrop */}
             <div
                 className={`fixed inset-0 z-50 flex flex-col ${colors.bg} ${isClosing ? 'opacity-0 scale-98' : 'opacity-100 scale-100'} transition-all duration-200`}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
             >
                 {/* ===== TOP BAR (Tarteel Style: Surah | Page | Juz | Hizb) ===== */}
                 <header className={`h-14 shrink-0 px-3 sm:px-6 flex items-center justify-between border-b ${colors.border} ${colors.header} z-20`}>
@@ -602,7 +688,18 @@ export function MushafViewer({ isOpen, onClose, onOpenSurah, onSelectAyah, initi
                 </header>
 
                 {/* ===== MAIN STAGE: 100% PROPORTIONAL FIT, ZERO VERTICAL SCROLL ===== */}
-                <main className={`flex-1 h-full min-h-0 w-full relative flex items-center justify-center p-1 sm:p-2 ${zoomLevel > 1.05 ? 'overflow-y-auto' : 'overflow-hidden'}`}>
+                <main
+                    onPointerDown={handlePointerDown}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                    onPointerCancel={handlePointerCancel}
+                    onWheel={handleWheel}
+                    className={`
+                        flex-1 h-full min-h-0 w-full relative flex items-center justify-center p-1 sm:p-2 
+                        ${zoomLevel > 1.05 ? 'overflow-y-auto' : 'overflow-hidden'}
+                        touch-pan-y select-none cursor-grab active:cursor-grabbing
+                    `}
+                >
                     {/* Floating Previous Page Chevron (RTL: Right Arrow = Page Before) */}
                     <button
                         onClick={goToPrevPage}
@@ -635,9 +732,10 @@ export function MushafViewer({ isOpen, onClose, onOpenSurah, onSelectAyah, initi
 
                     {/* Pages Container: Fits available viewport height with zero wasted space */}
                     <div
-                        className="h-full w-full max-h-full flex items-center justify-center transition-transform duration-150"
+                        className="h-full w-full max-h-full flex items-center justify-center will-change-transform select-none"
                         style={{
-                            transform: zoomLevel !== 1 ? `scale(${zoomLevel})` : undefined,
+                            transform: `${zoomLevel !== 1 ? `scale(${zoomLevel}) ` : ''}translateX(${dragOffset}px)`,
+                            transition: isDragging ? 'none' : 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)',
                             transformOrigin: 'center center',
                         }}
                     >
@@ -664,7 +762,7 @@ export function MushafViewer({ isOpen, onClose, onOpenSurah, onSelectAyah, initi
                     {/* Active Clicked Verse Action Banner */}
                     {activeVerse && (
                         <div className={`
-                            absolute bottom-4 z-40 px-4 py-2.5 rounded-2xl shadow-2xl border
+                            mushaf-action-banner absolute bottom-4 z-40 px-4 py-2.5 rounded-2xl shadow-2xl border
                             ${colors.cardBg} ${colors.border} flex items-center gap-3 animate-in fade-in slide-in-from-bottom-3 duration-200
                         `}>
                             <div className="text-left">

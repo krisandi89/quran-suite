@@ -264,11 +264,11 @@ function App() {
                         setIsSpotlightOpen(true);
                         window.dispatchEvent(new CustomEvent('open-tafsir-from-browse', { detail: { surah, ayah } }));
                     }}
-                    onSearchRelated={(keyword) => {
+                    onSearchRelated={(keyword, surah, ayah) => {
                         setBrowseVerse(null);
                         setFullSurahNumber(null);
                         setIsSpotlightOpen(true);
-                        window.dispatchEvent(new CustomEvent('search-related-from-browse', { detail: { keyword } }));
+                        window.dispatchEvent(new CustomEvent('search-related-from-browse', { detail: { keyword, surah, ayah } }));
                     }}
                     onBackToBrowse={() => {
                         setBrowseVerse(null);

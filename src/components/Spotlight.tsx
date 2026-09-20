@@ -137,14 +137,21 @@ export function Spotlight({ isOpen, onClose, onBackToMushaf }: SpotlightProps) {
         }
     }, [isOpen]);
 
+    // Track last verse source if arrived from Browse/Mushaf
+    const [lastVerseSource, setLastVerseSource] = useState<{ surah?: number; ayah?: number } | null>(null);
+
     // Listen for custom events from Browse Mode
     useEffect(() => {
         const handleOpenTafsir = (e: CustomEvent<{ surah: number, ayah: number }>) => {
+            setLastVerseSource({ surah: e.detail.surah, ayah: e.detail.ayah });
             setDetailView({ type: 'tafsir', surah: e.detail.surah, ayah: e.detail.ayah, source: 'kemenag' });
         };
-        const handleSearchRelated = (e: CustomEvent<{ keyword: string }>) => {
+        const handleSearchRelated = (e: CustomEvent<{ keyword: string; surah?: number; ayah?: number }>) => {
             setQuery(e.detail.keyword);
             setScope('hadith');
+            if (e.detail.surah) {
+                setLastVerseSource({ surah: e.detail.surah, ayah: e.detail.ayah });
+            }
         };
 
         window.addEventListener('open-tafsir-from-browse', handleOpenTafsir as EventListener);
@@ -429,6 +436,13 @@ export function Spotlight({ isOpen, onClose, onBackToMushaf }: SpotlightProps) {
                     number={detailView.number}
                     isOpen={true}
                     onClose={() => setDetailView(null)}
+                    onBackToMushaf={onBackToMushaf ? () => {
+                        const targetSurah = lastVerseSource?.surah;
+                        const targetAyah = lastVerseSource?.ayah;
+                        setDetailView(null);
+                        handleClose();
+                        onBackToMushaf(targetSurah, targetAyah);
+                    } : undefined}
                 />
             )}
         </>

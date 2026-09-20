@@ -15,7 +15,7 @@ interface VerseDrawerProps {
     onClose: () => void;
     onNavigate: (surah: number, ayah: number) => void;
     onOpenTafsir?: (surah: number, ayah: number) => void;
-    onSearchRelated?: (keyword: string) => void;
+    onSearchRelated?: (keyword: string, surah?: number, ayah?: number) => void;
     onBackToBrowse?: () => void;
     onOpenFullSurah?: (surah: number) => void;
     onBackToMushaf?: () => void;
@@ -357,7 +357,7 @@ export function VerseDrawer({ surah, ayah, isOpen, onClose, onNavigate, onOpenTa
                                 {onSearchRelated && (
                                     <button
                                         onClick={() => {
-                                            onSearchRelated(verse.indonesian.split(' ').slice(0, 5).join(' '));
+                                            onSearchRelated(verse.indonesian.split(' ').slice(0, 5).join(' '), surah, ayah);
                                         }}
                                         className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 hover:border-emerald-300 transition-all font-medium text-sm"
                                     >
